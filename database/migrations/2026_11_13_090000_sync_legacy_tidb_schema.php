@@ -162,15 +162,23 @@ return new class extends Migration
         };
     }
 
+    /**
+     * Tipe kolom dibaca lewat schema builder agar migrasi ini juga berjalan di
+     * SQLite (dipakai test), bukan hanya MySQL/TiDB.
+     */
     private function columnType(string $tableName, string $columnName): string
     {
-        $column = DB::selectOne(
-            'SELECT COLUMN_TYPE FROM information_schema.columns
-             WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?',
-            [$tableName, $columnName],
-        );
+        foreach (Schema::getColumns($tableName) as $column) {
+            if (($column['name'] ?? null) !== $columnName) {
+                continue;
+            }
 
-        return strtolower((string) ($column->COLUMN_TYPE ?? 'bigint unsigned'));
+            return strtolower(trim(
+                ((string) ($column['type_name'] ?? '')).' '.((string) ($column['type'] ?? ''))
+            ));
+        }
+
+        return 'bigint unsigned';
     }
 
     private function addMissingColumns(): void
@@ -348,45 +356,50 @@ return new class extends Migration
         ];
 
         foreach ($columns as [$tableName, $columnName, $default]) {
-            $column = DB::selectOne(
-                'SELECT DATA_TYPE FROM information_schema.columns
-                 WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?',
-                [$tableName, $columnName],
-            );
-
-            if ($column !== null && strtolower((string) $column->DATA_TYPE) === 'enum') {
-                Schema::table($tableName, function (Blueprint $table) use ($columnName, $default): void {
-                    $table->string($columnName, 30)->default($default)->change();
-                });
+            if (! Schema::hasColumn($tableName, $columnName)) {
+                continue;
             }
+
+            if (! str_contains($this->columnType($tableName, $columnName), 'enum')) {
+                continue;
+            }
+
+            Schema::table($tableName, function (Blueprint $table) use ($columnName, $default): void {
+                $table->string($columnName, 30)->default($default)->change();
+            });
         }
     }
 
     private function addMissingUniqueIndexes(): void
     {
-        $duplicate = DB::selectOne(
-            'SELECT COUNT(*) AS total FROM (
-                SELECT id_produk, id_finishing FROM produk_finishing
-                GROUP BY id_produk, id_finishing HAVING COUNT(*) > 1
-            ) AS duplikat',
-        );
-
-        if ((int) ($duplicate->total ?? 0) > 0) {
+        if (! Schema::hasTable('produk_finishing')) {
             return;
         }
 
-        $index = DB::selectOne(
-            "SELECT index_name FROM information_schema.statistics
-             WHERE table_schema = DATABASE() AND table_name = 'produk_finishing' AND non_unique = 0
-             GROUP BY index_name
-             HAVING GROUP_CONCAT(column_name ORDER BY seq_in_index) = 'id_produk,id_finishing'",
-        );
+        $hasDuplicates = DB::table('produk_finishing')
+            ->select('id_produk', 'id_finishing')
+            ->groupBy('id_produk', 'id_finishing')
+            ->havingRaw('COUNT(*) > 1')
+            ->exists();
 
-        if ($index === null) {
-            Schema::table('produk_finishing', function (Blueprint $table): void {
-                $table->unique(['id_produk', 'id_finishing']);
-            });
+        if ($hasDuplicates) {
+            return;
         }
+
+        foreach (Schema::getIndexes('produk_finishing') as $index) {
+            $columns = array_map(
+                fn (array|string $column): string => is_array($column) ? (string) ($column['name'] ?? '') : $column,
+                $index['columns'] ?? [],
+            );
+
+            if (($index['unique'] ?? false) === true && $columns === ['id_produk', 'id_finishing']) {
+                return;
+            }
+        }
+
+        Schema::table('produk_finishing', function (Blueprint $table): void {
+            $table->unique(['id_produk', 'id_finishing']);
+        });
     }
 
     /**

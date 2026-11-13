@@ -69,24 +69,24 @@ class StorefrontTest extends TestCase
 
     public function test_catalog_search_still_works_without_javascript(): void
     {
-        $this->get(route('catalog.index', ['q' => 'Mug Custom Sublim']))
+        $this->get(route('catalog.index', ['q' => 'Cetak Mug Keramik Custom']))
             ->assertOk()
-            ->assertSee('Mug Custom Sublim')
+            ->assertSee('Cetak Mug Keramik Custom')
             ->assertSee('Hasil pencarian untuk');
     }
 
     public function test_catalog_filter_endpoint_returns_live_search_results(): void
     {
-        $product = Product::query()->where('nama_produk', 'Mug Custom Sublim')->firstOrFail();
+        $product = Product::query()->where('nama_produk', 'Cetak Mug Keramik Custom')->firstOrFail();
 
-        $response = $this->getJson(route('catalog.filter', ['q' => 'Mug Custom Sublim']))
+        $response = $this->getJson(route('catalog.filter', ['q' => 'Cetak Mug Keramik Custom']))
             ->assertOk()
             ->assertJsonPath('total', 1)
             ->assertJsonPath('from', 1)
             ->assertJsonPath('to', 1)
-            ->assertJsonPath('search', 'Mug Custom Sublim')
+            ->assertJsonPath('search', 'Cetak Mug Keramik Custom')
             ->assertJsonPath('has_filters', true)
-            ->assertJsonPath('url', route('catalog.index', ['q' => 'Mug Custom Sublim'], false));
+            ->assertJsonPath('url', route('catalog.index', ['q' => 'Cetak Mug Keramik Custom'], false));
 
         $this->assertStringContainsString($product->nama_produk, $response->json('html'));
     }

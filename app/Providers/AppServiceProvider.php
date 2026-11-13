@@ -80,18 +80,38 @@ class AppServiceProvider extends ServiceProvider
      */
     private function configureUrls(): void
     {
+        $appUrl = $this->sanitizeUrl((string) config('app.url'));
+
+        if ($appUrl !== '') {
+            config(['app.url' => $appUrl]);
+        }
+
         if (! $this->app->environment('production')) {
             return;
         }
 
         URL::forceScheme('https');
 
-        $configuredHost = parse_url((string) config('app.url'), PHP_URL_HOST);
-        $vercelHost = rtrim((string) (env('VERCEL_PROJECT_PRODUCTION_URL') ?: env('VERCEL_URL')), '/');
+        $configuredHost = parse_url($appUrl, PHP_URL_HOST);
+        $vercelHost = $this->sanitizeUrl((string) (env('VERCEL_PROJECT_PRODUCTION_URL') ?: env('VERCEL_URL')));
 
         if ($vercelHost !== '' && ! str_starts_with($vercelHost, 'http')
             && in_array($configuredHost, [null, 'localhost', '127.0.0.1'], true)) {
             URL::forceRootUrl('https://'.$vercelHost);
         }
+    }
+
+    /**
+     * Membersihkan URL dari spasi dan karakter baris baru.
+     *
+     * Nilai environment yang ditempel dengan Enter (mis. APP_URL di dashboard
+     * Vercel) menghasilkan header "Location" berisi newline, yang membuat
+     * Symfony melempar "Header may not contain more than a single header".
+     */
+    private function sanitizeUrl(string $value): string
+    {
+        $sanitized = preg_replace('/[\s\x00-\x1F\x7F]+/', '', $value) ?? '';
+
+        return rtrim($sanitized, '/');
     }
 }

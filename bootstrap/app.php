@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CleanRedirectHeaders;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +14,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(CleanRedirectHeaders::class);
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
