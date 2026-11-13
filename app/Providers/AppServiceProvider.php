@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\StoreSetting;
 use App\Services\CartService;
 use App\Services\SavedProductService;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureUrls();
+
         View::composer([
             'layouts.app',
             'layouts.dashboard',
@@ -67,5 +70,28 @@ class AppServiceProvider extends ServiceProvider
         View::composer(['layouts.app', 'layouts.dashboard'], function ($view): void {
             $view->with('savedCount', app(SavedProductService::class)->count());
         });
+    }
+
+    /**
+     * Force HTTPS for every generated URL when the application runs in production.
+     *
+     * Falls back to the Vercel system domain when APP_URL is still pointing to localhost,
+     * so CSS/JS assets are not blocked as mixed content.
+     */
+    private function configureUrls(): void
+    {
+        if (! $this->app->environment('production')) {
+            return;
+        }
+
+        URL::forceScheme('https');
+
+        $configuredHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+        $vercelHost = rtrim((string) (env('VERCEL_PROJECT_PRODUCTION_URL') ?: env('VERCEL_URL')), '/');
+
+        if ($vercelHost !== '' && ! str_starts_with($vercelHost, 'http')
+            && in_array($configuredHost, [null, 'localhost', '127.0.0.1'], true)) {
+            URL::forceRootUrl('https://'.$vercelHost);
+        }
     }
 }

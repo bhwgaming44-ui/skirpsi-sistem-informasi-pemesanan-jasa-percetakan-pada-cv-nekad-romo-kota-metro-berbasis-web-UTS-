@@ -1,0 +1,23 @@
+/vendor
+/node_modules
+
+# Jangan unggah kredensial lokal ke Vercel
+.env
+.env.backup
+.env.production
+.env.local
+
+# Cache dan log lokal
+/.phpunit.cache
+/.phpunit.result.cache
+/storage/logs/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/pail
+
+# Berkas editor / OS
+.DS_Store
+Thumbs.db
+/.idea
+/.vscode
