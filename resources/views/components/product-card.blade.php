@@ -58,7 +58,7 @@
 
         <div class="mt-auto flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500">
             <span class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1">
-                <x-icon name="box" class="h-3.5 w-3.5" /> Min. {{ $product->min_order }} {{ $satuanLabel }}
+                <x-icon name="box" class="h-3.5 w-3.5" /> {{ $satuanLabel }}
             </span>
             <span class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1">
                 <x-icon name="clock" class="h-3.5 w-3.5" /> {{ $product->estimasi_hari }} hari

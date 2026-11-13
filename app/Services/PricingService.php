@@ -19,7 +19,7 @@ class PricingService
     {
         $panjang = round((float) ($data['panjang'] ?? 1), 2);
         $lebar = round((float) ($data['lebar'] ?? 1), 2);
-        $jumlah = max((int) ($data['jumlah'] ?? $product->min_order), 1);
+        $jumlah = max((int) ($data['jumlah'] ?? 1), 1);
         $isMeter = $product->satuan === 'meter';
         $luas = $isMeter ? round($panjang * $lebar, 2) : 0.0;
         $hargaSatuan = (float) $material->harga_satuan;

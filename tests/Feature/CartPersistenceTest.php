@@ -159,6 +159,29 @@ class CartPersistenceTest extends TestCase
         $this->assertDatabaseMissing('keranjang_pelanggan', ['id_user' => $customer->id_user]);
     }
 
+    public function test_jumlah_pembelian_bebas_walau_produk_punya_minimal_order(): void
+    {
+        $product = Product::query()
+            ->with('bahanAktif')
+            ->where('min_order', '>', 1)
+            ->firstOrFail();
+
+        $this->post(route('cart.store'), [
+            'product_id' => $product->id_produk,
+            'material_id' => $product->bahanAktif->firstOrFail()->id_bahan,
+            'jumlah' => 1,
+            'tipe_desain' => 'Punya Desain Sendiri',
+        ])
+            ->assertRedirect(route('cart.index'))
+            ->assertSessionHasNoErrors();
+
+        $cart = session('cart');
+
+        $this->assertIsArray($cart);
+        $this->assertCount(1, $cart);
+        $this->assertSame(1, reset($cart)['jumlah']);
+    }
+
     /**
      * @return array<string, int|float|string>
      */

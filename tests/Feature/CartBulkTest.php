@@ -57,7 +57,7 @@ class CartBulkTest extends TestCase
 
             $this->assertNotNull($product);
             $this->assertSame($product->bahanAktif->first()->id_bahan, $item['material_id']);
-            $this->assertSame(max($product->min_order, 1), $item['jumlah']);
+            $this->assertSame(1, $item['jumlah']);
             $this->assertSame('Punya Desain Sendiri', $item['tipe_desain']);
             $this->assertSame([], $item['finishing_ids']);
         }

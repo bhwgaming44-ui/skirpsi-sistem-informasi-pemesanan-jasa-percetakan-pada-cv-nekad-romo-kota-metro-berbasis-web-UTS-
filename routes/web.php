@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
     Route::get('/pembayaran/{order}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/pembayaran/{order}/metode', [PaymentController::class, 'selectMethod'])->name('payments.method');
+    Route::delete('/pembayaran/{order}/metode', [PaymentController::class, 'resetMethod'])->name('payments.method.reset');
     Route::post('/pembayaran/{order}/snap-token', [PaymentController::class, 'snapToken'])->name('payments.snap-token');
     Route::post('/pembayaran/{order}/simulasi', [PaymentController::class, 'simulate'])->name('payments.simulate');
     Route::get('/pembayaran/{order}/selesai', [PaymentController::class, 'finish'])->name('payments.finish');

@@ -54,7 +54,6 @@ document.addEventListener('alpine:init', () => {
         finishings: config.finishings,
         designFee: Number(config.designFee),
         satuan: config.satuan,
-        minOrder: Number(config.minOrder),
 
         get material() {
             return this.materials.find((item) => String(item.id) === String(this.materialId)) ?? this.materials[0];

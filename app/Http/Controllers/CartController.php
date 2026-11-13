@@ -45,14 +45,13 @@ class CartController extends Controller
         $validated = $request->validate([
             'panjang' => [$product->satuan === 'meter' ? 'required' : 'nullable', 'numeric', 'min:0.1', 'max:50'],
             'lebar' => [$product->satuan === 'meter' ? 'required' : 'nullable', 'numeric', 'min:0.1', 'max:50'],
-            'jumlah' => ['required', 'integer', 'min:'.max($product->min_order, 1), 'max:5000'],
+            'jumlah' => ['required', 'integer', 'min:1', 'max:5000'],
             'finishing_ids' => ['nullable', 'array'],
             'finishing_ids.*' => ['integer', 'exists:finishing,id_finishing'],
             'tipe_desain' => ['required', Rule::in(['Punya Desain Sendiri', 'Jasa Desain Nekad Romo'])],
             'catatan_desain' => ['nullable', 'string', 'max:1000'],
             'file_desain' => ['nullable', 'file', 'max:'.config('percetakan.maks_upload_kb'), 'mimes:jpg,jpeg,png,webp,pdf,zip'],
         ], [
-            'jumlah.min' => 'Minimal pemesanan produk ini adalah '.$product->min_order.' '.$product->satuan.'.',
             'file_desain.mimes' => 'File desain harus berupa JPG, PNG, WEBP, PDF, atau ZIP.',
             'file_desain.max' => 'Ukuran file desain maksimal 20 MB.',
         ]);
@@ -132,7 +131,7 @@ class CartController extends Controller
                 'material_id' => $material->id_bahan,
                 'panjang' => 1,
                 'lebar' => 1,
-                'jumlah' => max($product->min_order, 1),
+                'jumlah' => 1,
                 'finishing_ids' => [],
                 'tipe_desain' => 'Punya Desain Sendiri',
             ]);

@@ -16,7 +16,7 @@
         'materialId' => (string) old('material_id', $product->bahanAktif->first()->id_bahan ?? 0),
         'panjang' => (float) old('panjang', 1),
         'lebar' => (float) old('lebar', 1),
-        'jumlah' => (int) old('jumlah', max($product->min_order, 1)),
+        'jumlah' => (int) old('jumlah', 1),
         'finishingIds' => array_map('strval', old('finishing_ids', [])),
         'tipeDesain' => old('tipe_desain', 'Punya Desain Sendiri'),
         'materials' => $product->bahanAktif->map(fn ($bahan) => [
@@ -31,7 +31,6 @@
         ])->values()->all(),
         'designFee' => (int) config('percetakan.biaya_desain', 25000),
         'satuan' => $product->satuan,
-        'minOrder' => (int) $product->min_order,
     ];
 @endphp
 
@@ -114,8 +113,8 @@
                                 <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-brand-600 shadow-sm">
                                     <x-icon name="box" class="h-4 w-4" />
                                 </span>
-                                <p class="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Minimal order</p>
-                                <p class="text-sm font-bold text-slate-800">{{ $product->min_order }} {{ $satuanLabel }}</p>
+                                <p class="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Satuan</p>
+                                <p class="text-sm font-bold text-slate-800">{{ $satuanLabel }}</p>
                             </div>
                             <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5">
                                 <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-brand-600 shadow-sm">
@@ -222,12 +221,12 @@
                             <div>
                                 <label for="jumlah" class="label">Jumlah ({{ $satuanLabel }})</label>
                                 <div class="flex items-stretch gap-2">
-                                    <button type="button" @click="jumlah = Math.max(minOrder, Number(jumlah) - 1)"
+                                    <button type="button" @click="jumlah = Math.max(1, Number(jumlah) - 1)"
                                             class="flex w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-600">
                                         <x-icon name="minus" class="h-4 w-4" />
                                     </button>
-                                    <input id="jumlah" name="jumlah" type="number" min="{{ max($product->min_order, 1) }}" max="5000"
-                                           x-model.number="jumlah" value="{{ old('jumlah', max($product->min_order, 1)) }}" required
+                                    <input id="jumlah" name="jumlah" type="number" min="1" max="5000"
+                                           x-model.number="jumlah" value="{{ old('jumlah', 1) }}" required
                                            class="input text-center font-bold">
                                     <button type="button" @click="jumlah = Math.min(5000, Number(jumlah) + 1)"
                                             class="flex w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-600">
@@ -235,7 +234,7 @@
                                     </button>
                                 </div>
                                 <x-form-error name="jumlah" />
-                                <p class="mt-1.5 text-[11px] text-slate-400">Minimal {{ $product->min_order }} {{ $satuanLabel }}.</p>
+                                <p class="mt-1.5 text-[11px] text-slate-400">Jumlah bebas — minimal 1 {{ $satuanLabel }}.</p>
                             </div>
                         </div>
                     </div>

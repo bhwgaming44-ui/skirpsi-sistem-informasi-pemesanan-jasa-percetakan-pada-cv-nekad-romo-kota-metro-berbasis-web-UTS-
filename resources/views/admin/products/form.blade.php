@@ -188,14 +188,6 @@
                             </div>
 
                             <div>
-                                <label for="min_order" class="label">Minimal Order</label>
-                                <input id="min_order" name="min_order" type="number" min="1" max="10000" required
-                                       value="{{ old('min_order', $product->min_order) }}"
-                                       class="input @error('min_order') !border-rose-300 !ring-rose-100 @enderror">
-                                <x-form-error name="min_order" />
-                            </div>
-
-                            <div>
                                 <label for="estimasi_hari" class="label">Estimasi Pengerjaan (hari)</label>
                                 <input id="estimasi_hari" name="estimasi_hari" type="number" min="1" max="30" required
                                        value="{{ old('estimasi_hari', $product->estimasi_hari) }}"

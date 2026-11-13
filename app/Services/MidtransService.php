@@ -29,7 +29,7 @@ class MidtransService
         return $setting !== null && $setting->isConfigured();
     }
 
-    public function createSnapToken(Order $order, ?PaymentSetting $setting = null): ?string
+    public function createSnapToken(Order $order, ?PaymentSetting $setting = null, ?string $channel = null): ?string
     {
         $setting ??= $this->activeSetting();
 
@@ -39,7 +39,10 @@ class MidtransService
 
         $order->loadMissing(['detail.finishing', 'user']);
 
-        if ($order->snap_token !== null) {
+        $channels = $setting->paymentChannels();
+        $selectedChannel = $channel !== null && in_array($channel, $channels, true) ? $channel : null;
+
+        if ($selectedChannel === null && $order->snap_token !== null) {
             $status = $this->fetchStatus($order, $setting);
 
             if (($status['transaction_status'] ?? null) === 'pending') {
@@ -53,7 +56,7 @@ class MidtransService
             }
         }
 
-        $enabledPayments = $setting->paymentChannels();
+        $enabledPayments = $selectedChannel === null ? $channels : [$selectedChannel];
         $storeName = $setting->displayName();
 
         $itemDetails = [[

@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
 {
@@ -37,6 +38,8 @@ class PaymentController extends Controller
             ->filter()
             ->values();
 
+        $selectedChannel = $channels->firstWhere('code', $order->metode_pembayaran);
+
         $expiresAt = ($order->transaksiTerakhir?->created_at ?? $order->tgl_pesan)
             ->copy()
             ->addHours(max(1, (int) ($setting?->expiry_hours ?? 24)));
@@ -47,8 +50,68 @@ class PaymentController extends Controller
             'configured' => $configured,
             'transaction' => $order->transaksiTerakhir,
             'channels' => $channels,
+            'selectedChannel' => $selectedChannel,
             'expiresAt' => $expiresAt,
         ]);
+    }
+
+    /**
+     * Menyimpan metode pembayaran yang dipilih pelanggan. Token Snap lama
+     * dikosongkan agar sesi berikutnya hanya menampilkan kanal yang dipilih.
+     */
+    public function selectMethod(Request $request, Order $order): RedirectResponse
+    {
+        $this->authorizeOrder($order);
+
+        if ($order->isPaid()) {
+            return redirect()
+                ->route('payments.show', $order)
+                ->with('error', 'Pesanan ini sudah lunas, metode pembayaran tidak dapat diubah.');
+        }
+
+        $setting = PaymentSetting::active();
+        $available = $setting?->paymentChannels() ?? PaymentSetting::defaultChannels();
+
+        $validated = $request->validate([
+            'metode' => ['required', 'string', Rule::in($available)],
+        ], [
+            'metode.required' => 'Pilih salah satu metode pembayaran.',
+            'metode.in' => 'Metode pembayaran tersebut tidak tersedia. Silakan pilih metode lain.',
+        ]);
+
+        $order->forceFill([
+            'metode_pembayaran' => $validated['metode'],
+            'snap_token' => null,
+        ])->save();
+
+        $label = PaymentSetting::PAYMENT_CHANNELS[$validated['metode']]['label'] ?? $validated['metode'];
+
+        return redirect()
+            ->route('payments.show', $order)
+            ->with('success', 'Metode pembayaran '.$label.' dipilih. Lanjutkan pembayaran atau ganti metode kapan saja.');
+    }
+
+    /**
+     * Mengembalikan pelanggan ke daftar metode pembayaran (fitur "Kembali").
+     */
+    public function resetMethod(Order $order): RedirectResponse
+    {
+        $this->authorizeOrder($order);
+
+        if ($order->isPaid()) {
+            return redirect()
+                ->route('payments.show', $order)
+                ->with('error', 'Pesanan ini sudah lunas, metode pembayaran tidak dapat diubah.');
+        }
+
+        $order->forceFill([
+            'metode_pembayaran' => null,
+            'snap_token' => null,
+        ])->save();
+
+        return redirect()
+            ->route('payments.show', $order)
+            ->with('success', 'Silakan pilih metode pembayaran lain.');
     }
 
     public function snapToken(Order $order): JsonResponse
@@ -59,7 +122,7 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Pesanan sudah lunas.'], 422);
         }
 
-        $token = $this->midtrans->createSnapToken($order);
+        $token = $this->midtrans->createSnapToken($order, null, $order->metode_pembayaran);
 
         if ($token === null) {
             return response()->json(['message' => 'Gagal membuat sesi pembayaran Midtrans.'], 502);

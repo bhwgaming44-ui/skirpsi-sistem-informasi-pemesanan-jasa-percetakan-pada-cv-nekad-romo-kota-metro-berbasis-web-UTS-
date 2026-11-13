@@ -166,7 +166,7 @@ class ProductController extends Controller
             'hapus_galeri' => ['nullable', 'array'],
             'hapus_galeri.*' => ['integer'],
             'hapus_gambar' => ['nullable', 'boolean'],
-            'min_order' => ['required', 'integer', 'min:1', 'max:10000'],
+            'min_order' => ['nullable', 'integer', 'min:1', 'max:10000'],
             'estimasi_hari' => ['required', 'integer', 'min:1', 'max:30'],
             'bahan' => ['required', 'array', 'min:1'],
             'bahan.*.id_bahan' => ['nullable', 'integer'],

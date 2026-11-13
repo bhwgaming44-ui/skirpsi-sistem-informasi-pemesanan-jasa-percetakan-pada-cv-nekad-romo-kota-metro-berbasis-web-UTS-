@@ -116,7 +116,7 @@
 
                             <div class="mt-3 flex items-center justify-between gap-2 border-t border-dashed border-slate-200 pt-3">
                                 <span class="text-[10px] font-semibold text-slate-400">
-                                    Min. {{ $product->min_order }} {{ $satuanLabel($product->satuan) }}
+                                    Satuan {{ $satuanLabel($product->satuan) }}
                                 </span>
                                 <div class="flex items-center gap-1">
                                     <a href="{{ route('catalog.show', $product) }}" target="_blank"
