@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -12,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['nama', 'email', 'no_hp', 'alamat', 'username', 'password', 'role'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['nama', 'email', 'no_hp', 'alamat', 'foto_profil', 'username', 'password', 'password_terlihat', 'role'])]
+#[Hidden(['password', 'password_terlihat', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -30,6 +31,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'password_terlihat' => 'encrypted',
         ];
     }
 
@@ -72,6 +74,28 @@ class User extends Authenticatable
     public function isStaff(): bool
     {
         return in_array($this->role, ['admin', 'pimpinan'], true);
+    }
+
+    public function fotoProfilUrl(): ?string
+    {
+        if (blank($this->foto_profil)) {
+            return null;
+        }
+
+        if (str_starts_with($this->foto_profil, 'http')) {
+            return $this->foto_profil;
+        }
+
+        return asset('images/avatars/'.basename($this->foto_profil));
+    }
+
+    public function hasStoredPassword(): bool
+    {
+        try {
+            return filled($this->password_terlihat);
+        } catch (DecryptException) {
+            return false;
+        }
     }
 
     public function dashboardRoute(): string

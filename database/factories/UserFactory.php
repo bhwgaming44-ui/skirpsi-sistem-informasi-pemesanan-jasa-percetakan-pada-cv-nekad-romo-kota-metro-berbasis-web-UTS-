@@ -26,6 +26,7 @@ class UserFactory extends Factory
             'alamat' => fake()->address(),
             'username' => fake()->unique()->userName(),
             'password' => static::$password ??= Hash::make('password'),
+            'password_terlihat' => 'password',
             'role' => 'pelanggan',
             'remember_token' => Str::random(10),
         ];

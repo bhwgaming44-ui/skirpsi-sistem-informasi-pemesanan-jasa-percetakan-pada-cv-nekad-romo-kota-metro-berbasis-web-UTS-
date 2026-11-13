@@ -39,6 +39,7 @@ class ProfileController extends Controller
             }
 
             // Password baru akan otomatis di-hash oleh cast model User.
+            $validated['password_terlihat'] = $validated['password'];
         } else {
             unset($validated['password']);
         }

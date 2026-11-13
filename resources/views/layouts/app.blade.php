@@ -83,9 +83,7 @@
                     <div class="relative hidden sm:block" x-data="{ open: false }" @click.outside="open = false">
                         <button type="button" @click="open = !open"
                                 class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-1.5 pl-1.5 pr-3 text-left shadow-sm transition hover:border-brand-200">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 text-xs font-bold text-white">
-                                {{ strtoupper(substr(auth()->user()->nama, 0, 1)) }}
-                            </span>
+                            <x-user-avatar :user="auth()->user()" size="h-8 w-8" />
                             <span class="hidden leading-tight md:block">
                                 <span class="block max-w-28 truncate text-xs font-bold text-slate-800">{{ auth()->user()->nama }}</span>
                                 <span class="block text-[10px] font-semibold uppercase tracking-wide text-brand-500">{{ auth()->user()->role }}</span>
@@ -95,6 +93,10 @@
 
                         <div x-cloak x-show="open" x-transition.origin.top.right
                              class="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/10">
+                            <button type="button" @click="open = false; $dispatch('open-profile-photo')"
+                                    class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700">
+                                <x-icon name="camera" class="h-4 w-4" /> Ubah Foto Profil
+                            </button>
                             <a href="{{ auth()->user()->dashboardRoute() }}" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700">
                                 <x-icon name="grid" class="h-4 w-4" /> Dashboard
                             </a>
@@ -141,6 +143,8 @@
                 <a href="{{ route('cart.index') }}" class="rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Keranjang ({{ $cartCount ?? 0 }})</a>
                 @auth
                     <a href="{{ auth()->user()->dashboardRoute() }}" class="rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Dashboard</a>
+                    <button type="button" @click="mobileNav = false; $dispatch('open-profile-photo')"
+                            class="rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">Ubah Foto Profil</button>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-rose-600 hover:bg-rose-50">Keluar</button>
@@ -246,6 +250,10 @@
        aria-label="Chat WhatsApp">
         <x-icon name="whatsapp" class="h-6 w-6" />
     </a>
+
+    @auth
+        <x-profile-photo-modal :user="auth()->user()" />
+    @endauth
 
     @stack('scripts')
 </body>

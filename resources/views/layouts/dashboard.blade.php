@@ -34,6 +34,7 @@
                     ['label' => 'Kategori', 'icon' => 'layers', 'route' => 'admin.categories.index', 'active' => 'admin.categories.*'],
                     ['label' => 'Finishing', 'icon' => 'scissors', 'route' => 'admin.finishings.index', 'active' => 'admin.finishings.*'],
                     ['label' => 'Pelanggan', 'icon' => 'users', 'route' => 'admin.customers.index', 'active' => 'admin.customers.*'],
+                    ['label' => 'Pengguna & Password', 'icon' => 'key', 'route' => 'admin.users.index', 'active' => 'admin.users.*'],
                 ],
                 'Analisis & Sistem' => [
                     ['label' => 'Use Case & Flowchart', 'icon' => 'document', 'route' => 'admin.documentation', 'active' => 'admin.documentation'],
@@ -122,9 +123,7 @@
         <div class="relative shrink-0 border-t border-white/5 p-4">
             <div class="rounded-2xl bg-white/5 p-3 backdrop-blur">
                 <div class="flex items-center gap-2.5">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 text-sm font-bold text-white">
-                        {{ strtoupper(substr(auth()->user()->nama, 0, 1)) }}
-                    </span>
+                    <x-user-avatar :user="auth()->user()" size="h-9 w-9" text="text-sm" />
                     <div class="min-w-0 flex-1 leading-tight">
                         <p class="truncate text-xs font-bold text-white">{{ auth()->user()->nama }}</p>
                         <p class="truncate text-[10px] font-medium text-indigo-200/60">{{ auth()->user()->email }}</p>
@@ -191,9 +190,7 @@
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <button type="button" @click="open = !open"
                                 class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-1.5 pl-1.5 pr-2.5 text-left transition hover:border-brand-200">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 text-xs font-bold text-white">
-                                {{ strtoupper(substr(auth()->user()->nama, 0, 1)) }}
-                            </span>
+                            <x-user-avatar :user="auth()->user()" size="h-8 w-8" />
                             <span class="hidden leading-tight sm:block">
                                 <span class="block max-w-32 truncate text-xs font-bold text-slate-800">{{ auth()->user()->nama }}</span>
                                 <span class="block text-[10px] font-semibold text-slate-400">{{ $roleLabel }}</span>
@@ -203,6 +200,10 @@
 
                         <div x-cloak x-show="open" x-transition.origin.top.right
                              class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/10">
+                            <button type="button" @click="open = false; $dispatch('open-profile-photo')"
+                                    class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700">
+                                <x-icon name="camera" class="h-4 w-4" /> Ubah Foto Profil
+                            </button>
                             <a href="{{ route('home') }}" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700">
                                 <x-icon name="home" class="h-4 w-4" /> Halaman Situs
                             </a>
@@ -231,6 +232,8 @@
             &copy; {{ date('Y') }} {{ $storeSetting->nama_perusahaan ?? 'CV Nekad Romo Kota Metro' }} · Sistem Informasi Pemesanan Jasa Percetakan
         </footer>
     </div>
+
+    <x-profile-photo-modal :user="auth()->user()" />
 
     @stack('scripts')
 </body>

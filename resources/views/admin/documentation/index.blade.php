@@ -84,135 +84,19 @@
                         <h3 class="font-display text-base font-bold text-slate-900">Use Case Diagram</h3>
                         <p class="text-xs text-slate-400">Interaksi Pelanggan, Admin, dan Pimpinan terhadap sistem.</p>
                     </div>
-                    <div class="flex flex-wrap gap-1.5">
+                    <div class="flex flex-wrap items-center gap-1.5">
                         <span class="badge bg-indigo-50 text-indigo-700">Pelanggan</span>
                         <span class="badge bg-emerald-50 text-emerald-700">Admin</span>
                         <span class="badge bg-amber-50 text-amber-700">Pimpinan</span>
+                        <a href="{{ asset('images/dokumentasi/usecase.svg') }}" target="_blank" rel="noopener"
+                           class="badge bg-slate-900 text-white transition hover:bg-slate-700 print:hidden">
+                            <x-icon name="link" class="h-3.5 w-3.5" /> Buka di Chrome
+                        </a>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 p-3 sm:p-5">
-                    <svg viewBox="0 0 1000 640" role="img" aria-labelledby="usecase-title" class="h-auto w-full min-w-[860px]">
-                        <defs>
-                            <linearGradient id="ucBoundary" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0%" stop-color="#eef2ff" />
-                                <stop offset="100%" stop-color="#f8fafc" />
-                            </linearGradient>
-                            <filter id="ucShadow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#312e81" flood-opacity="0.10" />
-                            </filter>
-                            <marker id="ucArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                                <path d="M0,0 L8,4 L0,8 Z" fill="#818cf8" />
-                            </marker>
-                        </defs>
-
-                        <rect x="250" y="40" width="500" height="560" rx="28" fill="url(#ucBoundary)" stroke="#c7d2fe" stroke-width="1.5" filter="url(#ucShadow)" />
-                        <text id="usecase-title" x="500" y="74" text-anchor="middle" fill="#334155" font-size="15" font-weight="700">Sistem Pemesanan Jasa Percetakan</text>
-                        <text x="500" y="94" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">CV Nekad Romo Kota Metro</text>
-
-                        {{-- Pelanggan --}}
-                        <g stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round">
-                            <circle cx="100" cy="235" r="18" fill="#eef2ff" />
-                            <path d="M100 253v47M76 268h48M100 300l-18 40M100 300l18 40" />
-                        </g>
-                        <text x="100" y="364" text-anchor="middle" fill="#312e81" font-size="13" font-weight="700">Pelanggan</text>
-                        <text x="100" y="380" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="600">Customer</text>
-
-                        {{-- Admin --}}
-                        <g stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round">
-                            <circle cx="900" cy="235" r="18" fill="#ecfdf5" />
-                            <path d="M900 253v47M876 268h48M900 300l-18 40M900 300l18 40" />
-                        </g>
-                        <text x="900" y="364" text-anchor="middle" fill="#065f46" font-size="13" font-weight="700">Admin</text>
-                        <text x="900" y="380" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">Pengelola</text>
-
-                        {{-- Pimpinan --}}
-                        <g stroke="#f59e0b" stroke-width="2" fill="none" stroke-linecap="round">
-                            <circle cx="900" cy="470" r="18" fill="#fff7ed" />
-                            <path d="M900 488v47M876 503h48M900 535l-18 40M900 535l18 40" />
-                        </g>
-                        <text x="900" y="599" text-anchor="middle" fill="#92400e" font-size="13" font-weight="700">Pimpinan</text>
-
-                        {{-- Lines: Pelanggan --}}
-                        <g stroke="#6366f1" stroke-width="1.2" stroke-opacity="0.45">
-                            <line x1="122" y1="255" x2="275" y2="140" />
-                            <line x1="122" y1="255" x2="275" y2="215" />
-                            <line x1="122" y1="255" x2="275" y2="290" />
-                            <line x1="122" y1="255" x2="275" y2="365" />
-                            <line x1="122" y1="255" x2="275" y2="440" />
-                            <line x1="122" y1="255" x2="275" y2="515" />
-                        </g>
-
-                        {{-- Lines: Admin --}}
-                        <g stroke="#10b981" stroke-width="1.2" stroke-opacity="0.45">
-                            <line x1="878" y1="255" x2="725" y2="140" />
-                            <line x1="878" y1="255" x2="725" y2="215" />
-                            <line x1="878" y1="255" x2="725" y2="290" />
-                            <line x1="878" y1="255" x2="725" y2="365" />
-                            <line x1="878" y1="255" x2="725" y2="440" />
-                        </g>
-
-                        {{-- Line: Pimpinan --}}
-                        <line x1="876" y1="503" x2="725" y2="515" stroke="#f59e0b" stroke-width="1.2" stroke-opacity="0.5" />
-
-                        {{-- Use case: Pelanggan --}}
-                        <g>
-                            <ellipse cx="380" cy="140" rx="105" ry="27" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                            <text x="380" y="135" text-anchor="middle" fill="#312e81" font-size="12" font-weight="600">
-                                <tspan x="380">Melihat &amp; mencari</tspan>
-                                <tspan x="380" dy="15">produk</tspan>
-                            </text>
-
-                            <ellipse cx="380" cy="215" rx="105" ry="27" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                            <text x="380" y="219" text-anchor="middle" fill="#312e81" font-size="12" font-weight="600">Menyimpan produk favorit</text>
-
-                            <ellipse cx="380" cy="290" rx="105" ry="27" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                            <text x="380" y="294" text-anchor="middle" fill="#312e81" font-size="12" font-weight="600">Mengelola keranjang</text>
-
-                            <ellipse cx="380" cy="365" rx="105" ry="27" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                            <text x="380" y="369" text-anchor="middle" fill="#312e81" font-size="12" font-weight="600">Checkout pesanan</text>
-
-                            <ellipse cx="380" cy="440" rx="105" ry="27" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                            <text x="380" y="444" text-anchor="middle" fill="#312e81" font-size="12" font-weight="600">Pembayaran online</text>
-
-                            <ellipse cx="380" cy="515" rx="105" ry="27" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                            <text x="380" y="519" text-anchor="middle" fill="#312e81" font-size="12" font-weight="600">Melacak pesanan</text>
-                        </g>
-
-                        {{-- Include relation --}}
-                        <line x1="380" y1="392" x2="380" y2="412" stroke="#818cf8" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ucArrow)" />
-                        <text x="432" y="407" fill="#6366f1" font-size="9.5" font-weight="700">«include»</text>
-
-                        {{-- Use case: Admin --}}
-                        <g>
-                            <ellipse cx="620" cy="140" rx="105" ry="27" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <text x="620" y="135" text-anchor="middle" fill="#065f46" font-size="12" font-weight="600">
-                                <tspan x="620">Kelola produk</tspan>
-                                <tspan x="620" dy="15">&amp; gambar</tspan>
-                            </text>
-
-                            <ellipse cx="620" cy="215" rx="105" ry="27" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <text x="620" y="210" text-anchor="middle" fill="#065f46" font-size="12" font-weight="600">
-                                <tspan x="620">Kelola kategori</tspan>
-                                <tspan x="620" dy="15">&amp; finishing</tspan>
-                            </text>
-
-                            <ellipse cx="620" cy="290" rx="105" ry="27" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <text x="620" y="294" text-anchor="middle" fill="#065f46" font-size="12" font-weight="600">Verifikasi pembayaran</text>
-
-                            <ellipse cx="620" cy="365" rx="105" ry="27" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <text x="620" y="369" text-anchor="middle" fill="#065f46" font-size="12" font-weight="600">Proses produksi</text>
-
-                            <ellipse cx="620" cy="440" rx="105" ry="27" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <text x="620" y="444" text-anchor="middle" fill="#065f46" font-size="12" font-weight="600">Kelola pesanan</text>
-
-                            <ellipse cx="620" cy="515" rx="105" ry="27" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" />
-                            <text x="620" y="510" text-anchor="middle" fill="#92400e" font-size="12" font-weight="600">
-                                <tspan x="620">Melihat laporan</tspan>
-                                <tspan x="620" dy="15">penjualan</tspan>
-                            </text>
-                        </g>
-                    </svg>
+                    <img src="{{ asset('images/dokumentasi/usecase.svg') }}" alt="Use Case Diagram Sistem Pemesanan Jasa Percetakan CV Nekad Romo" class="h-auto w-full min-w-[860px]" loading="lazy" decoding="async">
                 </div>
             </div>
 
@@ -266,113 +150,17 @@
                         <h3 class="font-display text-base font-bold text-slate-900">Flowchart Alur Pemesanan Pelanggan</h3>
                         <p class="text-xs text-slate-400">Dari memilih produk sampai pesanan selesai diproduksi.</p>
                     </div>
-                    <span class="badge bg-brand-50 text-brand-700"><x-icon name="cart" class="h-3.5 w-3.5" /> Pelanggan</span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="badge bg-brand-50 text-brand-700"><x-icon name="cart" class="h-3.5 w-3.5" /> Pelanggan</span>
+                        <a href="{{ asset('images/dokumentasi/flowchart-pemesanan.svg') }}" target="_blank" rel="noopener"
+                           class="badge bg-slate-900 text-white transition hover:bg-slate-700 print:hidden">
+                            <x-icon name="link" class="h-3.5 w-3.5" /> Buka di Chrome
+                        </a>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 p-3 sm:p-5">
-                    <svg viewBox="0 0 1120 700" role="img" aria-labelledby="order-flow-title" class="h-auto w-full min-w-[980px]">
-                        <defs>
-                            <filter id="orderShadow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#1e293b" flood-opacity="0.08" />
-                            </filter>
-                            <marker id="orderArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                                <path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8" />
-                            </marker>
-                        </defs>
-
-                        <text id="order-flow-title" x="25" y="64" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing="1.5">TAHAP 1 · PELANGGAN MEMILIH PRODUK</text>
-                        <text x="25" y="264" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing="1.5">TAHAP 2 · CHECKOUT &amp; PEMBAYARAN</text>
-                        <text x="25" y="464" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing="1.5">TAHAP 3 · PRODUKSI &amp; PENYELESAIAN</text>
-
-                        {{-- Row 1 --}}
-                        <g filter="url(#orderShadow)">
-                            <rect x="25" y="80" width="170" height="68" rx="34" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <rect x="255" y="80" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="485" y="80" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="715" y="80" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="945" y="80" width="170" height="68" rx="16" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                        </g>
-                        <text x="110" y="119" text-anchor="middle" fill="#065f46" font-size="12.5" font-weight="700">Mulai</text>
-                        <text x="340" y="119" text-anchor="middle" fill="#1e293b" font-size="12.5" font-weight="600">Pilih produk</text>
-                        <text x="570" y="112" text-anchor="middle" fill="#1e293b" font-size="12.5" font-weight="600">
-                            <tspan x="570">Atur bahan,</tspan><tspan x="570" dy="16">ukuran &amp; jumlah</tspan>
-                        </text>
-                        <text x="800" y="112" text-anchor="middle" fill="#1e293b" font-size="12.5" font-weight="600">
-                            <tspan x="800">Tambah ke</tspan><tspan x="800" dy="16">keranjang</tspan>
-                        </text>
-                        <text x="1030" y="112" text-anchor="middle" fill="#312e81" font-size="12.5" font-weight="700">
-                            <tspan x="1030">Checkout</tspan><tspan x="1030" dy="16">pesanan</tspan>
-                        </text>
-
-                        {{-- Row 2 --}}
-                        <g filter="url(#orderShadow)">
-                            <rect x="945" y="280" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="715" y="280" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="485" y="280" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="255" y="280" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <path d="M110 270 L200 314 L110 358 L20 314 Z" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" />
-                        </g>
-                        <text x="1030" y="312" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="1030">Isi data</tspan><tspan x="1030" dy="15">pengiriman &amp; catatan</tspan>
-                        </text>
-                        <text x="800" y="319" text-anchor="middle" fill="#1e293b" font-size="12.5" font-weight="600">Buat pesanan</text>
-                        <text x="570" y="312" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="570">Pilih metode</tspan><tspan x="570" dy="15">pembayaran</tspan>
-                        </text>
-                        <text x="340" y="312" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="340">Bayar via</tspan><tspan x="340" dy="15">Midtrans</tspan>
-                        </text>
-                        <text x="110" y="309" text-anchor="middle" fill="#92400e" font-size="11.5" font-weight="700">
-                            <tspan x="110">Pembayaran</tspan><tspan x="110" dy="14">valid?</tspan>
-                        </text>
-
-                        {{-- Row 3 --}}
-                        <g filter="url(#orderShadow)">
-                            <rect x="25" y="480" width="170" height="68" rx="16" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <rect x="255" y="480" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="485" y="480" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="715" y="480" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="945" y="480" width="170" height="68" rx="34" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                        </g>
-                        <text x="110" y="519" text-anchor="middle" fill="#065f46" font-size="12.5" font-weight="700">Status Lunas</text>
-                        <text x="340" y="519" text-anchor="middle" fill="#1e293b" font-size="12.5" font-weight="600">Produksi cetak</text>
-                        <text x="570" y="519" text-anchor="middle" fill="#1e293b" font-size="12.5" font-weight="600">Selesai cetak</text>
-                        <text x="800" y="512" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="800">Siap diambil /</tspan><tspan x="800" dy="15">dikirim</tspan>
-                        </text>
-                        <text x="1030" y="519" text-anchor="middle" fill="#065f46" font-size="12.5" font-weight="700">Selesai</text>
-
-                        {{-- Arrows Row 1 --}}
-                        <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#orderArrow)">
-                            <line x1="195" y1="114" x2="247" y2="114" />
-                            <line x1="425" y1="114" x2="477" y2="114" />
-                            <line x1="655" y1="114" x2="707" y2="114" />
-                            <line x1="885" y1="114" x2="937" y2="114" />
-                            <line x1="1030" y1="148" x2="1030" y2="272" />
-                        </g>
-
-                        {{-- Arrows Row 2 --}}
-                        <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#orderArrow)">
-                            <line x1="945" y1="314" x2="893" y2="314" />
-                            <line x1="715" y1="314" x2="663" y2="314" />
-                            <line x1="485" y1="314" x2="433" y2="314" />
-                            <line x1="255" y1="314" x2="208" y2="314" />
-                        </g>
-
-                        {{-- Arrows Row 3 --}}
-                        <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#orderArrow)">
-                            <line x1="110" y1="358" x2="110" y2="472" />
-                            <line x1="195" y1="514" x2="247" y2="514" />
-                            <line x1="425" y1="514" x2="477" y2="514" />
-                            <line x1="655" y1="514" x2="707" y2="514" />
-                            <line x1="885" y1="514" x2="937" y2="514" />
-                        </g>
-
-                        {{-- Retry payment --}}
-                        <path d="M170 345 Q 255 388 338 350" fill="none" stroke="#f59e0b" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#orderArrow)" />
-                        <text x="244" y="382" text-anchor="middle" fill="#b45309" font-size="10" font-weight="700">Tidak / ulangi</text>
-                        <text x="122" y="405" fill="#059669" font-size="10.5" font-weight="700">Ya</text>
-                    </svg>
+                    <img src="{{ asset('images/dokumentasi/flowchart-pemesanan.svg') }}" alt="Flowchart Alur Pemesanan Pelanggan CV Nekad Romo" class="h-auto w-full min-w-[980px]" loading="lazy" decoding="async">
                 </div>
             </div>
 
@@ -400,109 +188,17 @@
                         <h3 class="font-display text-base font-bold text-slate-900">Flowchart Tambah Produk &amp; Gambar</h3>
                         <p class="text-xs text-slate-400">Alur admin menambahkan produk baru beserta gambar utama dan galeri foto.</p>
                     </div>
-                    <span class="badge bg-emerald-50 text-emerald-700"><x-icon name="package" class="h-3.5 w-3.5" /> Admin</span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="badge bg-emerald-50 text-emerald-700"><x-icon name="package" class="h-3.5 w-3.5" /> Admin</span>
+                        <a href="{{ asset('images/dokumentasi/flowchart-tambah-produk.svg') }}" target="_blank" rel="noopener"
+                           class="badge bg-slate-900 text-white transition hover:bg-slate-700 print:hidden">
+                            <x-icon name="link" class="h-3.5 w-3.5" /> Buka di Chrome
+                        </a>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 p-3 sm:p-5">
-                    <svg viewBox="0 0 1120 700" role="img" aria-labelledby="product-flow-title" class="h-auto w-full min-w-[980px]">
-                        <defs>
-                            <filter id="productShadow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#1e293b" flood-opacity="0.08" />
-                            </filter>
-                            <marker id="productArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                                <path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8" />
-                            </marker>
-                            <marker id="productArrowDanger" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                                <path d="M0,0 L8,4 L0,8 Z" fill="#f59e0b" />
-                            </marker>
-                        </defs>
-
-                        <text id="product-flow-title" x="25" y="64" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing="1.5">TAHAP 1 · PERSIAPAN DATA PRODUK</text>
-                        <text x="25" y="264" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing="1.5">TAHAP 2 · VALIDASI &amp; UNGGAH GAMBAR</text>
-                        <text x="25" y="464" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing="1.5">TAHAP 3 · PUBLIKASI</text>
-
-                        {{-- Row 1 --}}
-                        <g filter="url(#productShadow)">
-                            <rect x="25" y="80" width="170" height="68" rx="34" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                            <rect x="255" y="80" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="485" y="80" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="715" y="80" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="945" y="80" width="170" height="68" rx="16" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                        </g>
-                        <text x="110" y="119" text-anchor="middle" fill="#065f46" font-size="12.5" font-weight="700">Mulai</text>
-                        <text x="340" y="112" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="340">Login sebagai</tspan><tspan x="340" dy="15">admin</tspan>
-                        </text>
-                        <text x="570" y="112" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="570">Buka menu</tspan><tspan x="570" dy="15">Master Produk</tspan>
-                        </text>
-                        <text x="800" y="112" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="800">Klik tombol</tspan><tspan x="800" dy="15">Tambah Produk</tspan>
-                        </text>
-                        <text x="1030" y="112" text-anchor="middle" fill="#312e81" font-size="12" font-weight="700">
-                            <tspan x="1030">Isi informasi</tspan><tspan x="1030" dy="15">produk</tspan>
-                        </text>
-
-                        {{-- Row 2 --}}
-                        <g filter="url(#productShadow)">
-                            <rect x="945" y="280" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="715" y="280" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <rect x="485" y="280" width="170" height="68" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.5" />
-                            <path d="M340 270 L430 314 L340 358 L250 314 Z" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" />
-                            <rect x="25" y="280" width="170" height="68" rx="16" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                        </g>
-                        <text x="1030" y="312" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="1030">Upload gambar</tspan><tspan x="1030" dy="15">utama + galeri</tspan>
-                        </text>
-                        <text x="800" y="312" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">
-                            <tspan x="800">Tambah bahan</tspan><tspan x="800" dy="15">&amp; harga</tspan>
-                        </text>
-                        <text x="570" y="319" text-anchor="middle" fill="#1e293b" font-size="12.5" font-weight="600">Pilih finishing</text>
-                        <text x="340" y="309" text-anchor="middle" fill="#92400e" font-size="11.5" font-weight="700">
-                            <tspan x="340">Form &amp; gambar</tspan><tspan x="340" dy="14">valid?</tspan>
-                        </text>
-                        <text x="110" y="309" text-anchor="middle" fill="#065f46" font-size="11.5" font-weight="700">
-                            <tspan x="110">Produk disimpan</tspan><tspan x="110" dy="14">di database</tspan>
-                        </text>
-
-                        {{-- Row 3 --}}
-                        <g filter="url(#productShadow)">
-                            <rect x="25" y="480" width="170" height="68" rx="16" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
-                            <rect x="255" y="480" width="170" height="68" rx="34" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
-                        </g>
-                        <text x="110" y="512" text-anchor="middle" fill="#312e81" font-size="12" font-weight="600">
-                            <tspan x="110">Tampil di</tspan><tspan x="110" dy="15">katalog publik</tspan>
-                        </text>
-                        <text x="340" y="519" text-anchor="middle" fill="#065f46" font-size="12.5" font-weight="700">Selesai</text>
-
-                        {{-- Arrows Row 1 --}}
-                        <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#productArrow)">
-                            <line x1="195" y1="114" x2="247" y2="114" />
-                            <line x1="425" y1="114" x2="477" y2="114" />
-                            <line x1="655" y1="114" x2="707" y2="114" />
-                            <line x1="885" y1="114" x2="937" y2="114" />
-                            <line x1="1030" y1="148" x2="1030" y2="272" />
-                        </g>
-
-                        {{-- Arrows Row 2 --}}
-                        <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#productArrow)">
-                            <line x1="945" y1="314" x2="893" y2="314" />
-                            <line x1="715" y1="314" x2="663" y2="314" />
-                            <line x1="485" y1="314" x2="438" y2="314" />
-                            <line x1="250" y1="314" x2="203" y2="314" />
-                        </g>
-
-                        {{-- Arrows Row 3 --}}
-                        <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#productArrow)">
-                            <line x1="110" y1="348" x2="110" y2="472" />
-                            <line x1="195" y1="514" x2="247" y2="514" />
-                        </g>
-
-                        {{-- Invalid loop back to form --}}
-                        <path d="M340 270 V 36 H 1030 V 76" fill="none" stroke="#f59e0b" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#productArrowDanger)" />
-                        <text x="660" y="26" text-anchor="middle" fill="#b45309" font-size="10" font-weight="700">Tidak — tampilkan pesan error &amp; kembalikan ke form</text>
-                        <text x="218" y="300" fill="#059669" font-size="10.5" font-weight="700">Ya</text>
-                    </svg>
+                    <img src="{{ asset('images/dokumentasi/flowchart-tambah-produk.svg') }}" alt="Flowchart Tambah Produk dan Gambar CV Nekad Romo" class="h-auto w-full min-w-[980px]" loading="lazy" decoding="async">
                 </div>
             </div>
 

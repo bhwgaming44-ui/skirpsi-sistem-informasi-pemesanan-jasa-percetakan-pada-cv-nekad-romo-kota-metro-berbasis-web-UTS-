@@ -36,6 +36,7 @@ class RegisterController extends Controller
         ]);
 
         $validated['role'] = 'pelanggan';
+        $validated['password_terlihat'] = $validated['password'];
 
         $user = User::query()->create($validated);
 

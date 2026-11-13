@@ -16,15 +16,18 @@
 
         <div class="grid gap-5 xl:grid-cols-[1.6fr_1fr]">
             <div class="space-y-5">
+                {{-- Profile photo --}}
+                <div class="card overflow-hidden p-5">
+                    @include('partials.profile-photo-form', ['user' => $user])
+                </div>
+
                 {{-- Profile data --}}
                 <form method="POST" action="{{ route('customer.profile.update') }}" class="card overflow-hidden">
                     @csrf
                     @method('PUT')
 
                     <div class="flex items-center gap-3 border-b border-slate-100 p-5">
-                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 text-sm font-bold text-white shadow-lg shadow-brand-500/25">
-                            {{ strtoupper(substr($user->nama, 0, 1)) }}
-                        </span>
+                        <x-user-avatar :user="$user" size="h-11 w-11" text="text-sm" />
                         <div class="min-w-0">
                             <h3 class="font-display text-base font-bold text-slate-900">Data pribadi</h3>
                             <p class="text-xs text-slate-400">Terdaftar sejak {{ $user->created_at?->translatedFormat('d F Y') ?? '-' }}</p>
@@ -144,9 +147,14 @@
             <aside class="space-y-4">
                 <div class="card overflow-hidden">
                     <div class="bg-gradient-to-br from-ink-900 to-brand-900 p-5 text-white">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-200/60">Akun pelanggan</p>
-                        <p class="mt-1 font-display text-lg font-bold">{{ $user->nama }}</p>
-                        <p class="mt-0.5 text-xs text-indigo-200/70">{{ $user->email }}</p>
+                        <div class="flex items-center gap-3">
+                            <x-user-avatar :user="$user" size="h-14 w-14" text="text-lg" />
+                            <div class="min-w-0">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-200/60">Akun pelanggan</p>
+                                <p class="mt-0.5 truncate font-display text-lg font-bold">{{ $user->nama }}</p>
+                                <p class="truncate text-xs text-indigo-200/70">{{ $user->email }}</p>
+                            </div>
+                        </div>
                         <span class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur">
                             <x-icon name="user" class="h-3 w-3" /> {{ $user->role }}
                         </span>

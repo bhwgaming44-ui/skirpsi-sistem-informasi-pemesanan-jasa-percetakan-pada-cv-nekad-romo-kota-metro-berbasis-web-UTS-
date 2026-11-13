@@ -76,6 +76,8 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
+            $user['password_terlihat'] = $user['password'];
+
             User::query()->updateOrCreate(
                 ['username' => $user['username']],
                 $user

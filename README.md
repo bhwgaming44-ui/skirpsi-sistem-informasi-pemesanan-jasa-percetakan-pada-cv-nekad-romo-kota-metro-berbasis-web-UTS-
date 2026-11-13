@@ -102,6 +102,58 @@ Aplikasi web untuk pemesanan jasa percetakan secara online: pelanggan dapat meng
 - **Pesanan yang sudah dibuat** tersimpan permanen; pembayaran yang tertunda bisa dilanjutkan dari dashboard pelanggan.
 - Setelah pesanan berhasil dibuat, keranjang dan draft checkout dibersihkan agar tidak dobel.
 
+## Tampilan Aplikasi
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="screenshots/Dasbord.png" alt="Dashboard" width="100%">
+      <br><b>Dashboard</b>
+    </td>
+    <td width="50%" align="center">
+      <img src="screenshots/katalog%20.png" alt="Katalog Produk" width="100%">
+      <br><b>Katalog Produk</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="screenshots/pemesanan.png" alt="Pemesanan" width="100%">
+      <br><b>Pemesanan</b>
+    </td>
+    <td width="50%" align="center">
+      <img src="screenshots/keranjang%20pesanan.png" alt="Keranjang Pesanan" width="100%">
+      <br><b>Keranjang Pesanan</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="screenshots/lacak%20pesanan.png" alt="Lacak Pesanan" width="100%">
+      <br><b>Lacak Pesanan</b>
+    </td>
+    <td width="50%" align="center">
+      <img src="screenshots/riwayatpesanan.png" alt="Riwayat Pesanan" width="100%">
+      <br><b>Riwayat Pesanan</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="screenshots/profil%20saya.png" alt="Profil Saya" width="100%">
+      <br><b>Profil Saya</b>
+    </td>
+    <td width="50%" align="center">
+      <img src="screenshots/tamah%20produk.png" alt="Tambah Produk" width="100%">
+      <br><b>Tambah Produk</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="screenshots/flowchut.png" alt="Flowchart" width="100%">
+      <br><b>Flowchart</b>
+    </td>
+    <td width="50%"></td>
+  </tr>
+</table>
+
 ## Pengujian
 
 ```bash

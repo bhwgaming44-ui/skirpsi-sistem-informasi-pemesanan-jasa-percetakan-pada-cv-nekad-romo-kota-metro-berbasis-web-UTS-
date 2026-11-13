@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\DesignDownloadController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Pimpinan\DashboardController as PimpinanDashboardController;
+use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SavedProductController;
 use App\Http\Controllers\TrackingController;
@@ -76,6 +78,9 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profil', [ProfileController::class, 'update'])->name('profile.update');
     });
+
+    Route::post('/foto-profil', [ProfilePhotoController::class, 'update'])->name('profile-photo.update');
+    Route::delete('/foto-profil', [ProfilePhotoController::class, 'destroy'])->name('profile-photo.destroy');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
@@ -105,6 +110,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/pelanggan', [AdminCustomerController::class, 'index'])->name('customers.index');
     Route::get('/pelanggan/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
+
+    Route::get('/pengguna', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/pengguna/{user}/lihat-password', [AdminUserController::class, 'revealPassword'])->name('users.password.reveal');
+    Route::post('/pengguna/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.password.reset');
 
     Route::get('/dokumentasi-sistem', AdminDocumentationController::class)->name('documentation');
 

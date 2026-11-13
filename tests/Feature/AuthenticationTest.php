@@ -6,6 +6,7 @@ use App\Models\User;
 use Database\Seeders\SettingSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -57,5 +58,23 @@ class AuthenticationTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk();
         $this->actingAs($pimpinan)->get(route('pimpinan.dashboard'))->assertOk();
+    }
+
+    public function test_registration_stores_an_encrypted_copy_of_the_password_for_admin_support(): void
+    {
+        $this->post(route('register.store'), [
+            'nama' => 'Pelanggan Baru',
+            'username' => 'pelangganbaru',
+            'email' => 'pelangganbaru@example.com',
+            'no_hp' => '081299998888',
+            'alamat' => 'Jl. Uji No. 1, Kota Metro',
+            'password' => 'rahasia123',
+            'password_confirmation' => 'rahasia123',
+        ])->assertRedirect(route('customer.dashboard'));
+
+        $user = User::query()->where('username', 'pelangganbaru')->firstOrFail();
+
+        $this->assertSame('rahasia123', $user->password_terlihat);
+        $this->assertTrue(Hash::check('rahasia123', $user->password));
     }
 }
