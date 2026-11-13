@@ -2,6 +2,7 @@
 
 $dirs = [
     '/tmp/views',
+    '/tmp/cache',
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache',
     '/tmp/storage/framework/cache/data',
@@ -15,4 +16,4 @@ foreach ($dirs as $dir) {
     }
 }
 
-require __DIR__ . '/../public/index.php';
+require __DIR__.'/../public/index.php';
