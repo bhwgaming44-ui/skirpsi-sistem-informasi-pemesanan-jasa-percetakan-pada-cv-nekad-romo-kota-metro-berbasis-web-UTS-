@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Finishing;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 
@@ -11,6 +12,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $categories = Category::query()->pluck('id_kategori', 'nama_kategori');
+        $finishings = Finishing::query()->pluck('id_finishing', 'nama_finishing');
 
         $products = [
             [
@@ -27,7 +29,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Flexi Tebal 340 gram', 'harga_satuan' => 25000],
                     ['nama_bahan' => 'Flexi Korea 440 gram', 'harga_satuan' => 35000],
                 ],
-                'finishing' => [1, 2, 3],
+                'finishing' => ['Mata Ayam (Ring Sudut & Tengah)', 'Lipat Keliling Lem Rapi', 'Selongsong (Atas - Bawah)'],
             ],
             [
                 'kategori' => 'Digital Printing Outdoor / Indoor',
@@ -43,7 +45,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Vinyl Transparan', 'harga_satuan' => 12000],
                     ['nama_bahan' => 'Sticker Oneway', 'harga_satuan' => 15000],
                 ],
-                'finishing' => [4, 5],
+                'finishing' => ['Laminasi Glossy (Mengkilap)', 'Laminasi Doff (Elegan Matte)'],
             ],
             [
                 'kategori' => 'Cetak Promosi & Lembaran',
@@ -59,7 +61,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Art Paper 150 gram', 'harga_satuan' => 2000],
                     ['nama_bahan' => 'Matt Paper 150 gram', 'harga_satuan' => 2200],
                 ],
-                'finishing' => [4, 5, 6],
+                'finishing' => ['Laminasi Glossy (Mengkilap)', 'Laminasi Doff (Elegan Matte)', 'Lipat 3 Brosur (Z-Fold)'],
             ],
             [
                 'kategori' => 'Cetak Promosi & Lembaran',
@@ -75,7 +77,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Art Carton 310 gram', 'harga_satuan' => 900],
                     ['nama_bahan' => 'Concorde 1000', 'harga_satuan' => 1000],
                 ],
-                'finishing' => [4, 5, 8],
+                'finishing' => ['Laminasi Glossy (Mengkilap)', 'Laminasi Doff (Elegan Matte)', 'Spot UV'],
             ],
             [
                 'kategori' => 'Cetak Promosi & Lembaran',
@@ -91,7 +93,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Linen 300 gram', 'harga_satuan' => 3500],
                     ['nama_bahan' => 'Jasmine 400 gram', 'harga_satuan' => 4000],
                 ],
-                'finishing' => [4, 5, 8, 10],
+                'finishing' => ['Laminasi Glossy (Mengkilap)', 'Laminasi Doff (Elegan Matte)', 'Spot UV', 'Sablon Emas'],
             ],
             [
                 'kategori' => 'Cetak Promosi & Lembaran',
@@ -107,11 +109,11 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Art Paper 150 gram', 'harga_satuan' => 8000],
                     ['nama_bahan' => 'Synthetic Paper', 'harga_satuan' => 20000],
                 ],
-                'finishing' => [4, 5],
+                'finishing' => ['Laminasi Glossy (Mengkilap)', 'Laminasi Doff (Elegan Matte)'],
             ],
             [
                 'kategori' => 'Merchandise & Sablon Digital',
-                'nama_produk' => 'Mug Custom Sublim',
+                'nama_produk' => 'Cetak Mug Keramik Custom',
                 'satuan' => 'pcs',
                 'deskripsi' => 'Mug keramik custom full color, cocok untuk souvenir, hadiah, dan merchandise perusahaan.',
                 'gambar' => 'mug.jpg',
@@ -119,11 +121,11 @@ class ProductSeeder extends Seeder
                 'estimasi_hari' => 2,
                 'is_featured' => true,
                 'bahan' => [
-                    ['nama_bahan' => 'Mug Keramik Standar', 'harga_satuan' => 20000],
+                    ['nama_bahan' => 'Mug Keramik Standar Import', 'harga_satuan' => 20000],
                     ['nama_bahan' => 'Mug Premium Coating', 'harga_satuan' => 28000],
                     ['nama_bahan' => 'Mug Magic Color Change', 'harga_satuan' => 45000],
                 ],
-                'finishing' => [10],
+                'finishing' => ['Sablon Emas'],
             ],
             [
                 'kategori' => 'Merchandise & Sablon Digital',
@@ -139,7 +141,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Cotton Combed 30s', 'harga_satuan' => 55000],
                     ['nama_bahan' => 'Dry Fit Sport', 'harga_satuan' => 65000],
                 ],
-                'finishing' => [11],
+                'finishing' => ['Sablon Full Color'],
             ],
             [
                 'kategori' => 'Cetak Dokumen & Kemasan',
@@ -155,7 +157,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'HVS 80 gram', 'harga_satuan' => 95000],
                     ['nama_bahan' => 'NCR 2 Ply', 'harga_satuan' => 175000],
                 ],
-                'finishing' => [7, 9],
+                'finishing' => ['Jilid Spiral', 'Lem / Perekat'],
             ],
             [
                 'kategori' => 'Cetak Dokumen & Kemasan',
@@ -171,7 +173,7 @@ class ProductSeeder extends Seeder
                     ['nama_bahan' => 'Ivory 210 gram', 'harga_satuan' => 4500],
                     ['nama_bahan' => 'Art Paper 250 gram', 'harga_satuan' => 5000],
                 ],
-                'finishing' => [4, 5, 9, 10],
+                'finishing' => ['Laminasi Glossy (Mengkilap)', 'Laminasi Doff (Elegan Matte)', 'Lem / Perekat', 'Sablon Emas'],
             ],
         ];
 
@@ -197,7 +199,9 @@ class ProductSeeder extends Seeder
                 );
             }
 
-            $product->finishing()->sync($data['finishing']);
+            $product->finishing()->sync(
+                collect($data['finishing'])->map(fn (string $nama): int => $finishings[$nama])->all()
+            );
         }
     }
 }
