@@ -115,7 +115,7 @@
 
                         <div class="mt-4 flex flex-wrap gap-2">
                             @if ($activeOrder->status_pesanan === \App\Models\Order::STATUS_MENUNGGU)
-                                <a href="{{ route('payments.show', $activeOrder) }}" class="btn-primary btn-sm">
+                                <a href="{{ $activeOrder->paymentUrl() }}" class="btn-primary btn-sm">
                                     <x-icon name="credit-card" class="h-4 w-4" /> Selesaikan Pembayaran
                                 </a>
                             @endif

@@ -43,7 +43,7 @@
                         <p class="text-[11px] text-amber-700/80">Status produksi hanya dapat diperbarui setelah pembayaran terverifikasi.</p>
                     </div>
                 </div>
-                <a href="{{ route('payments.show', $order) }}" target="_blank" class="btn-white btn-sm">
+                <a href="{{ $order->paymentUrl() }}" target="_blank" class="btn-white btn-sm">
                     <x-icon name="credit-card" class="h-4 w-4" /> Halaman pembayaran
                 </a>
             </div>

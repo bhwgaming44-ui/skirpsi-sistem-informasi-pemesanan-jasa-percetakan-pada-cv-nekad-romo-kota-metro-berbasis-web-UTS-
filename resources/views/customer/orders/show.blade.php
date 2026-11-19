@@ -171,7 +171,7 @@
 
                     <div class="space-y-2.5 p-5">
                         @if (! $paid)
-                            <a href="{{ route('payments.show', $order) }}" class="btn-primary w-full">
+                            <a href="{{ $order->paymentUrl() }}" class="btn-primary w-full">
                                 <x-icon name="credit-card" class="h-4.5 w-4.5" /> Bayar Sekarang
                             </a>
                         @endif

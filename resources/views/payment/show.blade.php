@@ -8,6 +8,30 @@
     $isExpired = $expiresAt->isPast();
     $metode = $order->metode_pengambilan;
 
+    $sharePaymentUrl = $shared
+        ? request()->fullUrl()
+        : $order->paymentUrl();
+
+    $paymentKey = $order->paymentKey();
+
+    $snapTokenUrl = $shared
+        ? \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'payments.shared.snap-token', now()->addDays(7), ['order' => $order]
+        )
+        : route('payments.snap-token', ['order' => $order, 'key' => $paymentKey]);
+
+    $statusUrl = $shared
+        ? \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'payments.shared.status', now()->addDays(7), ['order' => $order]
+        )
+        : route('payments.status', ['order' => $order, 'key' => $paymentKey]);
+
+    $finishUrl = $shared
+        ? \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'payments.shared.finish', now()->addDays(7), ['order' => $order]
+        )
+        : route('payments.finish', ['order' => $order, 'key' => $paymentKey]);
+
     $gatewayLabel = match ($transaction?->transaction_status) {
         'settlement', 'capture' => 'Lunas',
         'pending' => 'Menunggu pembayaran',
@@ -33,7 +57,9 @@
         <div class="pointer-events-none absolute inset-0 bg-mesh opacity-70"></div>
         <div class="container-page relative py-6">
             <nav class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-400">
-                <a href="{{ route('customer.orders.index') }}" class="hover:text-brand-600">Pesanan Saya</a>
+                <a href="{{ $shared ? route('tracking.index') : route('customer.orders.index') }}" class="hover:text-brand-600">
+                    {{ $shared ? 'Lacak Pesanan' : 'Pesanan Saya' }}
+                </a>
                 <x-icon name="chevron-right" class="h-3 w-3" />
                 <span class="text-slate-700">{{ $order->kode_pesanan }}</span>
             </nav>
@@ -89,14 +115,16 @@
                         </div>
 
                         <div class="relative mt-5 flex flex-wrap gap-2.5">
-                            <a href="{{ route('orders.invoice', $order) }}" target="_blank"
-                               class="btn !bg-white !text-emerald-700 shadow-lg hover:-translate-y-0.5">
-                                <x-icon name="print" class="h-4.5 w-4.5" /> Cetak Invoice
-                            </a>
-                            <a href="{{ route('customer.orders.show', $order) }}"
-                               class="btn border border-white/30 bg-white/10 !text-white hover:bg-white/20">
-                                <x-icon name="receipt" class="h-4.5 w-4.5" /> Detail Pesanan
-                            </a>
+                            @if ($canSelectMethod)
+                                <a href="{{ route('orders.invoice', $order) }}" target="_blank"
+                                   class="btn !bg-white !text-emerald-700 shadow-lg hover:-translate-y-0.5">
+                                    <x-icon name="print" class="h-4.5 w-4.5" /> Cetak Invoice
+                                </a>
+                                <a href="{{ route('customer.orders.show', $order) }}"
+                                   class="btn border border-white/30 bg-white/10 !text-white hover:bg-white/20">
+                                    <x-icon name="receipt" class="h-4.5 w-4.5" /> Detail Pesanan
+                                </a>
+                            @endif
                             <a href="{{ route('catalog.index') }}"
                                class="btn border border-white/30 bg-white/10 !text-white hover:bg-white/20">
                                 <x-icon name="plus" class="h-4.5 w-4.5" /> Pesan Lagi
@@ -242,17 +270,31 @@
                                 {{ $hasToken && ! $isExpired ? 'Lanjutkan' : 'Bayar Sekarang' }} — Rp {{ number_format((int) $order->grand_total, 0, ',', '.') }}
                             </button>
 
-                            <form method="POST" action="{{ route('payments.method.reset', $order) }}" class="mt-2.5">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        class="btn w-full border border-slate-200 !bg-white !text-slate-600 hover:!bg-slate-50">
-                                    <x-icon name="arrow-left" class="h-4.5 w-4.5" /> Kembali / Ganti Metode Pembayaran
-                                </button>
-                            </form>
-                            <p class="mt-2 text-center text-[11px] text-slate-400">
-                                Salah pilih metode? Tekan <b>Kembali</b> untuk memilih metode pembayaran lain.
-                            </p>
+                            @if ($canSelectMethod)
+                                <form method="POST" action="{{ route('payments.method.reset', $order) }}" class="mt-2.5">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="btn w-full border border-slate-200 !bg-white !text-slate-600 hover:!bg-slate-50">
+                                        <x-icon name="arrow-left" class="h-4.5 w-4.5" /> Kembali / Ganti Metode Pembayaran
+                                    </button>
+                                </form>
+                                <p class="mt-2 text-center text-[11px] text-slate-400">
+                                    Salah pilih metode? Tekan <b>Kembali</b> untuk memilih metode pembayaran lain.
+                                </p>
+                            @endif
+                        @elseif (! $canSelectMethod)
+                            <div class="mt-4 rounded-2xl border border-brand-100 bg-brand-50/60 px-4 py-3">
+                                <p class="text-[11px] leading-relaxed text-brand-700/85">
+                                    Semua metode pembayaran (QRIS, e-wallet, virtual account, gerai retail) tersedia
+                                    di jendela Midtrans. Tekan tombol di bawah untuk memilih metode saat membayar.
+                                </p>
+                            </div>
+
+                            <button type="button" id="pay-button" class="btn-primary shine mt-4 w-full !py-4 text-base shadow-xl shadow-brand-500/25">
+                                <x-icon name="credit-card" class="h-5 w-5" />
+                                Bayar Sekarang — Rp {{ number_format((int) $order->grand_total, 0, ',', '.') }}
+                            </button>
                         @else
                             <div id="pilih-metode" class="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                                 @foreach ($channels as $channel)
@@ -294,7 +336,8 @@
                             <div class="mt-4 flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
                                 <x-icon name="clock" class="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
                                 <p class="text-[11px] leading-relaxed text-amber-700">
-                                    Sesi pembayaran sebelumnya sudah kedaluwarsa. Pilih metode pembayaran untuk membuat sesi baru.
+                                    Sesi pembayaran sebelumnya sudah kedaluwarsa.
+                                    {{ $canSelectMethod ? 'Pilih metode pembayaran untuk membuat sesi baru.' : 'Tekan tombol Bayar Sekarang untuk membuat sesi baru.' }}
                                 </p>
                             </div>
                         @endif
@@ -317,7 +360,7 @@
                     </div>
 
                     {{-- Monitoring --}}
-                    <div data-payment-poll="{{ route('payments.status', $order) }}"
+                    <div data-payment-poll="{{ $statusUrl }}"
                          class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
                         <div class="flex items-center gap-2.5">
                             <span class="relative flex h-2.5 w-2.5">
@@ -369,29 +412,35 @@
                                 </div>
                             </div>
 
-                            <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                                <form method="POST" action="{{ route('payments.simulate', $order) }}"
-                                      data-confirm="Simulasi pembayaran berhasil akan menandai pesanan sebagai LUNAS dan masuk antrean produksi."
-                                      data-confirm-button="Ya, bayar sekarang" data-confirm-icon="success"
-                                      data-confirm-title="Simulasikan pembayaran berhasil?">
-                                    @csrf
-                                    <input type="hidden" name="hasil" value="sukses">
-                                    <button type="submit" class="btn-primary w-full !bg-gradient-to-r !from-emerald-500 !to-teal-500 !py-3.5 shadow-lg shadow-emerald-500/25">
-                                        <x-icon name="check-circle" class="h-5 w-5" /> Simulasi Berhasil
-                                    </button>
-                                </form>
+                            @if ($canSelectMethod)
+                                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                                    <form method="POST" action="{{ route('payments.simulate', $order) }}"
+                                          data-confirm="Simulasi pembayaran berhasil akan menandai pesanan sebagai LUNAS dan masuk antrean produksi."
+                                          data-confirm-button="Ya, bayar sekarang" data-confirm-icon="success"
+                                          data-confirm-title="Simulasikan pembayaran berhasil?">
+                                        @csrf
+                                        <input type="hidden" name="hasil" value="sukses">
+                                        <button type="submit" class="btn-primary w-full !bg-gradient-to-r !from-emerald-500 !to-teal-500 !py-3.5 shadow-lg shadow-emerald-500/25">
+                                            <x-icon name="check-circle" class="h-5 w-5" /> Simulasi Berhasil
+                                        </button>
+                                    </form>
 
-                                <form method="POST" action="{{ route('payments.simulate', $order) }}"
-                                      data-confirm="Simulasi pembayaran gagal akan menandai pembayaran sebagai GAGAL."
-                                      data-confirm-button="Ya, simulasikan gagal" data-confirm-icon="error"
-                                      data-confirm-title="Simulasikan pembayaran gagal?">
-                                    @csrf
-                                    <input type="hidden" name="hasil" value="gagal">
-                                    <button type="submit" class="btn-danger w-full !bg-gradient-to-r !from-rose-500 !to-pink-500 !py-3.5">
-                                        <x-icon name="close" class="h-5 w-5" /> Simulasi Gagal
-                                    </button>
-                                </form>
-                            </div>
+                                    <form method="POST" action="{{ route('payments.simulate', $order) }}"
+                                          data-confirm="Simulasi pembayaran gagal akan menandai pembayaran sebagai GAGAL."
+                                          data-confirm-button="Ya, simulasikan gagal" data-confirm-icon="error"
+                                          data-confirm-title="Simulasikan pembayaran gagal?">
+                                        @csrf
+                                        <input type="hidden" name="hasil" value="gagal">
+                                        <button type="submit" class="btn-danger w-full !bg-gradient-to-r !from-rose-500 !to-pink-500 !py-3.5">
+                                            <x-icon name="close" class="h-5 w-5" /> Simulasi Gagal
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <p class="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-[11px] leading-relaxed text-amber-700">
+                                    Mode simulasi hanya tersedia saat login sebagai pemilik pesanan. Hubungi admin toko untuk menyelesaikan pembayaran.
+                                </p>
+                            @endif
 
                             <p class="mt-4 text-center text-[11px] leading-relaxed text-slate-400">
                                 Admin dapat mengaktifkan Midtrans pada menu <b>Pembayaran</b> agar pembayaran asli
@@ -400,7 +449,7 @@
                         </div>
                     </div>
 
-                    <div data-payment-poll="{{ route('payments.status', $order) }}"></div>
+                    <div data-payment-poll="{{ $statusUrl }}"></div>
                 @endif
 
                 {{-- ===== DETAIL TRANSAKSI ===== --}}
@@ -534,6 +583,20 @@
                     @endif
                 </div>
 
+                @if (! $paid && $configured)
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+                        <p class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                            <x-icon name="refresh" class="h-4 w-4 text-brand-500" /> Lanjutkan dari perangkat lain
+                        </p>
+                        <p class="mt-1 text-[11px] leading-relaxed text-slate-500">
+                            Pesanan ini bisa dibayar dari HP maupun laptop. Salin link di bawah lalu buka di perangkat lain.
+                        </p>
+                        <button type="button" data-copy="{{ $sharePaymentUrl }}" class="btn-white btn-sm mt-3 w-full">
+                            <x-icon name="clipboard" class="h-4 w-4" /> Salin link pembayaran
+                        </button>
+                    </div>
+                @endif
+
                 <div class="rounded-2xl border border-brand-100 bg-brand-50/60 p-5">
                     <p class="flex items-center gap-1.5 text-xs font-bold text-brand-800">
                         <x-icon name="whatsapp" class="h-4 w-4" /> Butuh bantuan?
@@ -561,7 +624,7 @@
                     <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total tagihan</p>
                     <p class="truncate font-display text-lg font-extrabold text-slate-900">Rp {{ number_format((int) $order->grand_total, 0, ',', '.') }}</p>
                 </div>
-                @if ($selectedChannel)
+                @if ($selectedChannel || ! $canSelectMethod)
                     <button type="button" data-pay-trigger class="btn-primary shrink-0 !px-6 !py-3">
                         <x-icon name="credit-card" class="h-4.5 w-4.5" /> Bayar
                     </button>
@@ -611,9 +674,9 @@
             });
 
             (() => {
-                const finishUrl = @json(route('payments.finish', $order));
-                const tokenUrl = @json(route('payments.snap-token', $order));
-                const statusUrl = @json(route('payments.status', $order));
+                const finishUrl = @json($finishUrl);
+                const tokenUrl = @json($snapTokenUrl);
+                const statusUrl = @json($statusUrl);
                 let snapToken = @json($isExpired ? null : $order->snap_token);
 
                 const fail = (message) => {

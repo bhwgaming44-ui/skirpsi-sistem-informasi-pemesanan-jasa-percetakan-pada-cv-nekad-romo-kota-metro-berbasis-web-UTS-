@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
@@ -21,10 +22,24 @@ class PaymentController extends Controller
         private readonly PaymentService $payments,
     ) {}
 
-    public function show(Order $order): View
+    public function show(Request $request, Order $order): View
     {
-        $this->authorizeOrder($order);
+        $this->authorizeOrder($request, $order);
 
+        return $this->renderPaymentPage($order, shared: false);
+    }
+
+    /**
+     * Halaman pembayaran yang bisa dibuka dari perangkat mana pun lewat link
+     * bertanda tangan, sehingga pesanan dari HP tetap bisa dibayar di laptop.
+     */
+    public function showShared(Order $order): View
+    {
+        return $this->renderPaymentPage($order, shared: true);
+    }
+
+    private function renderPaymentPage(Order $order, bool $shared): View
+    {
         $order->load(['detail.finishing', 'transaksiTerakhir', 'user']);
         $setting = PaymentSetting::active();
         $configured = $setting !== null && $setting->isConfigured();
@@ -52,6 +67,10 @@ class PaymentController extends Controller
             'channels' => $channels,
             'selectedChannel' => $selectedChannel,
             'expiresAt' => $expiresAt,
+            'shared' => $shared,
+            'canSelectMethod' => ! $shared
+                && auth()->check()
+                && (int) $order->id_user === (int) auth()->id(),
         ]);
     }
 
@@ -61,7 +80,7 @@ class PaymentController extends Controller
      */
     public function selectMethod(Request $request, Order $order): RedirectResponse
     {
-        $this->authorizeOrder($order);
+        $this->authorizeOwner($order);
 
         if ($order->isPaid()) {
             return redirect()
@@ -94,9 +113,9 @@ class PaymentController extends Controller
     /**
      * Mengembalikan pelanggan ke daftar metode pembayaran (fitur "Kembali").
      */
-    public function resetMethod(Order $order): RedirectResponse
+    public function resetMethod(Request $request, Order $order): RedirectResponse
     {
-        $this->authorizeOrder($order);
+        $this->authorizeOwner($order);
 
         if ($order->isPaid()) {
             return redirect()
@@ -114,10 +133,20 @@ class PaymentController extends Controller
             ->with('success', 'Silakan pilih metode pembayaran lain.');
     }
 
-    public function snapToken(Order $order): JsonResponse
+    public function snapToken(Request $request, Order $order): JsonResponse
     {
-        $this->authorizeOrder($order);
+        $this->authorizeOrder($request, $order);
 
+        return $this->issueSnapToken($order);
+    }
+
+    public function snapTokenShared(Order $order): JsonResponse
+    {
+        return $this->issueSnapToken($order);
+    }
+
+    private function issueSnapToken(Order $order): JsonResponse
+    {
         if ($order->isPaid()) {
             return response()->json(['message' => 'Pesanan sudah lunas.'], 422);
         }
@@ -131,10 +160,20 @@ class PaymentController extends Controller
         return response()->json(['token' => $token]);
     }
 
-    public function status(Order $order): JsonResponse
+    public function status(Request $request, Order $order): JsonResponse
     {
-        $this->authorizeOrder($order);
+        $this->authorizeOrder($request, $order);
 
+        return $this->paymentStatus($order);
+    }
+
+    public function statusShared(Order $order): JsonResponse
+    {
+        return $this->paymentStatus($order);
+    }
+
+    private function paymentStatus(Order $order): JsonResponse
+    {
         if (! $order->isPaid() && $this->midtrans->isReady()) {
             $cacheKey = 'payment-status-check:'.$order->id_pesanan;
 
@@ -154,7 +193,7 @@ class PaymentController extends Controller
 
     public function simulate(Request $request, Order $order): RedirectResponse
     {
-        $this->authorizeOrder($order);
+        $this->authorizeOwner($order);
 
         abort_if($this->midtrans->isReady(), 403, 'Simulasi hanya tersedia ketika Midtrans belum dikonfigurasi.');
 
@@ -174,16 +213,30 @@ class PaymentController extends Controller
             );
     }
 
-    public function finish(Order $order): RedirectResponse
+    public function finish(Request $request, Order $order): RedirectResponse
     {
-        $this->authorizeOrder($order);
+        $this->authorizeOrder($request, $order);
 
+        return $this->finishPayment($order, shared: false);
+    }
+
+    public function finishShared(Order $order): RedirectResponse
+    {
+        return $this->finishPayment($order, shared: true);
+    }
+
+    private function finishPayment(Order $order, bool $shared): RedirectResponse
+    {
         if (! $order->isPaid() && $this->midtrans->isReady()) {
             $this->midtrans->syncStatus($order);
         }
 
+        $redirectUrl = $shared
+            ? URL::temporarySignedRoute('payments.shared', now()->addDay(), ['order' => $order])
+            : $order->paymentUrl();
+
         return redirect()
-            ->route('payments.show', $order)
+            ->to($redirectUrl)
             ->with('success', $order->fresh()->isPaid()
                 ? 'Pembayaran berhasil! Pesanan Anda sudah masuk antrean produksi.'
                 : 'Kami sedang memverifikasi pembayaran Anda. Halaman ini akan diperbarui otomatis.');
@@ -210,8 +263,29 @@ class PaymentController extends Controller
         );
     }
 
-    private function authorizeOrder(Order $order): void
+    private function authorizeOrder(Request $request, Order $order): void
     {
-        abort_unless($order->id_user === auth()->id(), 403, 'Pesanan ini bukan milik akun Anda.');
+        $user = $request->user();
+
+        $isOwnerOrStaff = $user !== null
+            && ((int) $order->id_user === (int) $user->id_user || $user->isStaff());
+
+        $key = $request->query('key');
+        $hasPaymentKey = is_string($key) && $order->hasValidPaymentKey($key);
+
+        abort_unless(
+            $isOwnerOrStaff || $hasPaymentKey || $request->hasValidSignature(),
+            403,
+            'Pesanan ini bukan milik akun Anda.'
+        );
+    }
+
+    private function authorizeOwner(Order $order): void
+    {
+        abort_unless(
+            auth()->check() && (int) $order->id_user === (int) auth()->id(),
+            403,
+            'Pesanan ini bukan milik akun Anda.'
+        );
     }
 }

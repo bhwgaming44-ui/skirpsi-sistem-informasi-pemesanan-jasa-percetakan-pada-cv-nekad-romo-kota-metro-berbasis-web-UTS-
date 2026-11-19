@@ -7,9 +7,11 @@ use App\Models\Order;
 use App\Models\PaymentSetting;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -101,7 +103,9 @@ class MidtransService
                 'duration' => max(1, (int) $setting->expiry_hours),
             ],
             'callbacks' => [
-                'finish' => route('payments.finish', $order->kode_pesanan),
+                'finish' => URL::temporarySignedRoute(
+                    'payments.shared.finish', now()->addDays(7), ['order' => $order]
+                ),
             ],
             'custom_field1' => $order->kode_pesanan,
             'custom_field2' => $storeName,
@@ -438,17 +442,24 @@ class MidtransService
         $response = $this->httpRequest($setting)
             ->post($setting->apiBaseUrl(), $payload);
 
-        if ($response->successful()) {
-            return $response;
+        $attempt = 0;
+
+        while (! $response->successful() && $this->isDuplicateOrderId($response) && $attempt < 2) {
+            $attempt++;
+
+            // Midtrans menolak order_id yang sudah pernah dipakai (HTTP 400/406).
+            // Buat order_id revisi agar pelanggan tetap bisa melanjutkan pembayaran.
+            $payload['transaction_details']['order_id'] = $this->revisedOrderId(
+                (string) $payload['transaction_details']['order_id'],
+                $attempt
+            );
+
+            $response = $this->httpRequest($setting)
+                ->post($setting->apiBaseUrl(), $payload);
         }
 
-        if ($response->status() === 406 && str_contains((string) $response->json('status_message'), 'order_id')) {
-            $payload['transaction_details']['order_id'] .= '-REV'.now()->format('His');
-
-            $retry = $this->httpRequest($setting)
-                ->post($setting->apiBaseUrl(), $payload);
-
-            return $retry->successful() ? $retry : null;
+        if ($response->successful()) {
+            return $response;
         }
 
         Log::warning('Midtrans menolak pembuatan Snap token.', [
@@ -457,6 +468,25 @@ class MidtransService
         ]);
 
         return null;
+    }
+
+    private function isDuplicateOrderId(Response $response): bool
+    {
+        if (! in_array($response->status(), [400, 406], true)) {
+            return false;
+        }
+
+        $body = Str::lower((string) $response->body());
+
+        return str_contains($body, 'order_id')
+            && (str_contains($body, 'already') || str_contains($body, 'taken') || str_contains($body, 'used'));
+    }
+
+    private function revisedOrderId(string $orderId, int $attempt): string
+    {
+        $base = (string) preg_replace('/-REV\d+$/', '', $orderId);
+
+        return $base.'-REV'.now()->format('Hisv').$attempt;
     }
 
     /**

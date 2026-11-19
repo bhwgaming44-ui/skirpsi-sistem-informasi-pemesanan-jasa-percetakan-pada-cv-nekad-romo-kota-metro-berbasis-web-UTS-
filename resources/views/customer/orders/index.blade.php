@@ -85,7 +85,7 @@
 
                             <div class="flex flex-wrap gap-2">
                                 @if ($order->status_pesanan === \App\Models\Order::STATUS_MENUNGGU)
-                                    <a href="{{ route('payments.show', $order) }}" class="btn-primary btn-sm">
+                                    <a href="{{ $order->paymentUrl() }}" class="btn-primary btn-sm">
                                         <x-icon name="credit-card" class="h-4 w-4" /> Bayar
                                     </a>
                                 @endif

@@ -56,6 +56,17 @@ Route::post('/produk-tersimpan/{product}', [SavedProductController::class, 'togg
 
 Route::post('/payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
 
+/*
+ * Link pembayaran lintas perangkat (bertanda tangan). Pesanan yang dibuat di HP
+ * bisa dibuka dan dibayar dari laptop tanpa perlu login ulang di perangkat itu.
+ */
+Route::middleware('signed')->prefix('bayar')->group(function (): void {
+    Route::get('/{order}', [PaymentController::class, 'showShared'])->name('payments.shared');
+    Route::get('/{order}/status', [PaymentController::class, 'statusShared'])->name('payments.shared.status');
+    Route::get('/{order}/selesai', [PaymentController::class, 'finishShared'])->name('payments.shared.finish');
+    Route::post('/{order}/snap-token', [PaymentController::class, 'snapTokenShared'])->name('payments.shared.snap-token');
+});
+
 Route::middleware('auth')->group(function (): void {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/draft', [CheckoutController::class, 'saveDraft'])->name('checkout.draft');

@@ -105,6 +105,34 @@ class Order extends Model
         return 'kode_pesanan';
     }
 
+    /**
+     * Kunci pembayaran stabil per pesanan, dipakai agar halaman pembayaran
+     * dapat dibuka dari perangkat/akun mana pun tanpa bergantung pada sesi.
+     */
+    public function paymentKey(): string
+    {
+        return hash_hmac(
+            'sha256',
+            $this->id_pesanan.'|'.$this->kode_pesanan,
+            (string) config('app.key')
+        );
+    }
+
+    public function paymentUrl(): string
+    {
+        return route('payments.show', [
+            'order' => $this->getRouteKey(),
+            'key' => $this->paymentKey(),
+        ]);
+    }
+
+    public function hasValidPaymentKey(?string $key): bool
+    {
+        return is_string($key)
+            && $key !== ''
+            && hash_equals($this->paymentKey(), $key);
+    }
+
     public function nextStatus(): ?string
     {
         $index = array_search($this->status_pesanan, self::TAHAPAN, true);

@@ -167,6 +167,19 @@
                     </button>
                 </div>
 
+                @if (! $order->isPaid() && $order->status_pesanan === \App\Models\Order::STATUS_MENUNGGU)
+                    <div class="rounded-2xl border border-amber-200 bg-amber-50/70 p-5">
+                        <p class="text-xs font-bold text-amber-800">Pembayaran belum selesai</p>
+                        <p class="mt-1 text-[11px] leading-relaxed text-amber-700/90">
+                            Lanjutkan pembayaran dari perangkat mana pun — HP, tablet, atau laptop.
+                        </p>
+                        <a href="{{ \Illuminate\Support\Facades\URL::temporarySignedRoute('payments.shared', now()->addDays(7), ['order' => $order]) }}"
+                           class="btn-primary mt-3 w-full">
+                            <x-icon name="credit-card" class="h-4.5 w-4.5" /> Bayar Sekarang
+                        </a>
+                    </div>
+                @endif
+
                 <a href="{{ route('tracking.index') }}" class="btn-ghost w-full">
                     <x-icon name="arrow-left" class="h-4 w-4" /> Lacak pesanan lain
                 </a>
