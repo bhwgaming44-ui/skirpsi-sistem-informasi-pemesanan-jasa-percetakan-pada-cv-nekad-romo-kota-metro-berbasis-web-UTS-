@@ -225,7 +225,7 @@ class MidtransService
 
             try {
                 $response = $this->httpRequest($setting, 12)
-                    ->get($setting->apiStatusUrl($order->kode_pesanan));
+                    ->get($setting->apiStatusUrl($this->gatewayOrderId($order)));
 
                 if ($response->status() === 404) {
                     return ['ok' => false, 'not_found' => true, 'message' => 'Transaksi belum dibuat di Midtrans.'];
@@ -383,7 +383,7 @@ class MidtransService
     {
         try {
             $response = $this->httpRequest($setting, 10)
-                ->get($setting->apiStatusUrl($order->kode_pesanan));
+                ->get($setting->apiStatusUrl($this->gatewayOrderId($order)));
 
             if (! $response->successful()) {
                 return [];
@@ -487,6 +487,18 @@ class MidtransService
         $base = (string) preg_replace('/-REV\d+$/', '', $orderId);
 
         return $base.'-REV'.now()->format('Hisv').$attempt;
+    }
+
+    /**
+     * Order ID yang benar-benar tercatat di Midtrans. Ketika Midtrans menolak
+     * order_id utama karena sudah terpakai, transaksi dibuat dengan kode revisi
+     * (-REV...). Status harus dicek memakai kode revisi itu, bukan kode asli.
+     */
+    private function gatewayOrderId(Order $order): string
+    {
+        $gatewayOrderId = $order->transaksiTerakhir()->value('order_id_gateway');
+
+        return filled($gatewayOrderId) ? (string) $gatewayOrderId : $order->kode_pesanan;
     }
 
     /**

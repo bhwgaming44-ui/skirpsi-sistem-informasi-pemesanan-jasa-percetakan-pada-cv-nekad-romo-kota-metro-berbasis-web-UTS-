@@ -142,4 +142,10 @@ class StorefrontTest extends TestCase
             ->assertJsonPath('sort', 'terbaru')
             ->assertJsonPath('has_filters', false);
     }
+
+    public function test_catalog_filter_redirects_to_catalog_index_when_accessed_via_browser_directly(): void
+    {
+        $this->get(route('catalog.filter', ['page' => 1]))
+            ->assertRedirect(route('catalog.index', ['page' => 1]));
+    }
 }

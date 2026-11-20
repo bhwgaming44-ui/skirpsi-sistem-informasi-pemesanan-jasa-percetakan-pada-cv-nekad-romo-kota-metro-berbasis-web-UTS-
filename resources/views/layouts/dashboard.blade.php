@@ -212,6 +212,39 @@
                                     <x-icon name="user" class="h-4 w-4" /> Profil Saya
                                 </a>
                             @endif
+
+                            {{-- Beralih Akun Instan (Testing Dosen) --}}
+                            <div class="mt-1 border-t border-slate-100 pt-1">
+                                <p class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Ganti Akun (Testing)</p>
+                                @if (! auth()->user()->isAdmin())
+                                    <form method="POST" action="{{ route('switch-account') }}">
+                                        @csrf
+                                        <input type="hidden" name="role" value="admin">
+                                        <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-semibold text-brand-700 transition hover:bg-brand-50">
+                                            <x-icon name="settings" class="h-3.5 w-3.5" /> Beralih ke Admin
+                                        </button>
+                                    </form>
+                                @endif
+                                @if (! auth()->user()->isPimpinan())
+                                    <form method="POST" action="{{ route('switch-account') }}">
+                                        @csrf
+                                        <input type="hidden" name="role" value="pimpinan">
+                                        <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-semibold text-violet-700 transition hover:bg-violet-50">
+                                            <x-icon name="chart" class="h-3.5 w-3.5" /> Beralih ke Pimpinan
+                                        </button>
+                                    </form>
+                                @endif
+                                @if (! auth()->user()->isPelanggan())
+                                    <form method="POST" action="{{ route('switch-account') }}">
+                                        @csrf
+                                        <input type="hidden" name="role" value="pelanggan">
+                                        <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50">
+                                            <x-icon name="user" class="h-3.5 w-3.5" /> Beralih ke Pelanggan
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+
                             <form method="POST" action="{{ route('logout') }}" class="mt-1 border-t border-slate-100 pt-1">
                                 @csrf
                                 <button type="submit" class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50">

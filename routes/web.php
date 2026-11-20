@@ -36,9 +36,11 @@ Route::get('/katalog/{product}', [CatalogController::class, 'show'])->name('cata
 Route::get('/lacak', [TrackingController::class, 'index'])->name('tracking.index');
 Route::get('/lacak/{kode}', [TrackingController::class, 'show'])->name('tracking.show');
 
+Route::get('/masuk', [LoginController::class, 'create'])->name('login');
+Route::post('/masuk', [LoginController::class, 'store'])->middleware('throttle:60,1')->name('login.store');
+Route::post('/switch-account', [LoginController::class, 'switchAccount'])->name('switch-account');
+
 Route::middleware('guest')->group(function (): void {
-    Route::get('/masuk', [LoginController::class, 'create'])->name('login');
-    Route::post('/masuk', [LoginController::class, 'store'])->middleware('throttle:6,1')->name('login.store');
     Route::get('/daftar', [RegisterController::class, 'create'])->name('register');
     Route::post('/daftar', [RegisterController::class, 'store'])->middleware('throttle:6,1')->name('register.store');
 });
@@ -63,7 +65,7 @@ Route::post('/payments/webhook', [PaymentController::class, 'webhook'])->name('p
 Route::middleware('signed')->prefix('bayar')->group(function (): void {
     Route::get('/{order}', [PaymentController::class, 'showShared'])->name('payments.shared');
     Route::get('/{order}/status', [PaymentController::class, 'statusShared'])->name('payments.shared.status');
-    Route::get('/{order}/selesai', [PaymentController::class, 'finishShared'])->name('payments.shared.finish');
+    Route::match(['get', 'post'], '/{order}/selesai', [PaymentController::class, 'finishShared'])->name('payments.shared.finish');
     Route::post('/{order}/snap-token', [PaymentController::class, 'snapTokenShared'])->name('payments.shared.snap-token');
 });
 
@@ -77,7 +79,7 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/pembayaran/{order}/metode', [PaymentController::class, 'resetMethod'])->name('payments.method.reset');
     Route::post('/pembayaran/{order}/snap-token', [PaymentController::class, 'snapToken'])->name('payments.snap-token');
     Route::post('/pembayaran/{order}/simulasi', [PaymentController::class, 'simulate'])->name('payments.simulate');
-    Route::get('/pembayaran/{order}/selesai', [PaymentController::class, 'finish'])->name('payments.finish');
+    Route::match(['get', 'post'], '/pembayaran/{order}/selesai', [PaymentController::class, 'finish'])->name('payments.finish');
     Route::get('/pembayaran/{order}/status', [PaymentController::class, 'status'])->name('payments.status');
 
     Route::get('/pesanan/{order}/invoice', [CustomerOrderController::class, 'invoice'])->name('orders.invoice');

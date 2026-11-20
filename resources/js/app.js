@@ -284,9 +284,16 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            if (url.origin !== window.location.origin
-                || url.pathname !== this.pagePath
-                || !url.searchParams.has('page')) {
+            if (url.origin !== window.location.origin || !url.searchParams.has('page')) {
+                return;
+            }
+
+            const isCatalogPath = url.pathname === this.pagePath
+                || url.pathname === '/katalog'
+                || url.pathname.endsWith('/katalog')
+                || url.pathname.endsWith('/katalog/filter');
+
+            if (!isCatalogPath) {
                 return;
             }
 

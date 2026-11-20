@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\GatewayTransaction;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\MidtransService;
@@ -107,5 +108,55 @@ class MidtransSnapTokenTest extends TestCase
         $this->assertNull($order->fresh()->snap_token);
 
         Http::assertSentCount(1);
+    }
+
+    public function test_status_sync_uses_the_revised_gateway_order_id(): void
+    {
+        $customer = User::query()->where('username', 'raihan')->firstOrFail();
+
+        $order = Order::query()->create([
+            'kode_pesanan' => 'NR-20261119-REVS',
+            'id_user' => $customer->id_user,
+            'tgl_pesan' => now(),
+            'total_produk' => 25000,
+            'ongkir' => 0,
+            'grand_total' => 25000,
+            'metode_pengambilan' => 'Ambil di Toko',
+            'metode_pembayaran' => 'qris',
+            'status_pembayaran' => 'Menunggu Pembayaran',
+            'status_pesanan' => Order::STATUS_MENUNGGU,
+        ]);
+
+        $gatewayOrderId = 'NR-20261119-REVS-REV1234561';
+
+        GatewayTransaction::query()->create([
+            'id_pesanan' => $order->id_pesanan,
+            'order_id_gateway' => $gatewayOrderId,
+            'transaction_id_gateway' => 'tx-revisi-status',
+            'gross_amount' => 25000,
+            'transaction_status' => 'pending',
+        ]);
+
+        Http::fake([
+            '*' => Http::response([
+                'order_id' => $gatewayOrderId,
+                'transaction_id' => 'tx-revisi-status',
+                'transaction_status' => 'settlement',
+                'status_code' => '200',
+                'gross_amount' => '25000.00',
+                'payment_type' => 'qris',
+                'fraud_status' => 'accept',
+            ], 200),
+        ]);
+
+        $result = app(MidtransService::class)->syncStatus($order);
+
+        $this->assertTrue($result['ok'] ?? false);
+
+        Http::assertSent(function (Request $request) use ($gatewayOrderId): bool {
+            return str_contains($request->url(), $gatewayOrderId);
+        });
+
+        $this->assertTrue($order->fresh()->isPaid());
     }
 }

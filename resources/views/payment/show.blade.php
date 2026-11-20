@@ -115,14 +115,19 @@
                         </div>
 
                         <div class="relative mt-5 flex flex-wrap gap-2.5">
-                            @if ($canSelectMethod)
-                                <a href="{{ route('orders.invoice', $order) }}" target="_blank"
-                                   class="btn !bg-white !text-emerald-700 shadow-lg hover:-translate-y-0.5">
-                                    <x-icon name="print" class="h-4.5 w-4.5" /> Cetak Invoice
-                                </a>
+                            <a href="{{ route('orders.invoice', ['order' => $order, 'key' => $paymentKey]) }}" target="_blank"
+                               class="btn !bg-white !text-emerald-700 font-bold shadow-lg hover:-translate-y-0.5">
+                                <x-icon name="print" class="h-4.5 w-4.5" /> Cetak Nota / Invoice
+                            </a>
+                            @if (! $shared && auth()->check() && (int) $order->id_user === (int) auth()->id())
                                 <a href="{{ route('customer.orders.show', $order) }}"
                                    class="btn border border-white/30 bg-white/10 !text-white hover:bg-white/20">
                                     <x-icon name="receipt" class="h-4.5 w-4.5" /> Detail Pesanan
+                                </a>
+                            @else
+                                <a href="{{ route('tracking.show', $order->kode_pesanan) }}"
+                                   class="btn border border-white/30 bg-white/10 !text-white hover:bg-white/20">
+                                    <x-icon name="search" class="h-4.5 w-4.5" /> Lacak Pesanan
                                 </a>
                             @endif
                             <a href="{{ route('catalog.index') }}"
@@ -360,19 +365,39 @@
                     </div>
 
                     {{-- Monitoring --}}
-                    <div data-payment-poll="{{ $statusUrl }}"
-                         class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                        <div class="flex items-center gap-2.5">
-                            <span class="relative flex h-2.5 w-2.5">
-                                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                                <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                            </span>
-                            <div class="leading-tight">
-                                <p class="text-xs font-bold text-slate-800">Memantau status pembayaran</p>
-                                <p class="text-[10px] text-slate-400">Halaman diperbarui otomatis setelah pembayaran terverifikasi.</p>
+                    <div class="space-y-3">
+                        <div data-payment-poll="{{ $statusUrl }}"
+                             class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="relative flex h-2.5 w-2.5">
+                                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                                </span>
+                                <div class="leading-tight">
+                                    <p class="text-xs font-bold text-slate-800">Memantau status pembayaran</p>
+                                    <p class="text-[10px] text-slate-400">Halaman diperbarui otomatis setelah pembayaran terverifikasi.</p>
+                                </div>
                             </div>
+                            <span class="badge bg-slate-100 text-slate-500">Live</span>
                         </div>
-                        <span class="badge bg-slate-100 text-slate-500">Live</span>
+
+                        {{-- Fallback konfirmasi langsung jika menguji di localhost --}}
+                        <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-emerald-300 bg-emerald-50/60 px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <x-icon name="check-circle" class="h-4 w-4 text-emerald-600 shrink-0" />
+                                <div class="leading-tight">
+                                    <p class="text-xs font-bold text-slate-800">Sudah bayar di simulator atau demo di localhost?</p>
+                                    <p class="text-[10px] text-slate-500">Klik konfirmasi untuk langsung menandai lunas dan mencetak nota.</p>
+                                </div>
+                            </div>
+                            <form method="POST" action="{{ route('payments.simulate', ['order' => $order, 'key' => $paymentKey]) }}">
+                                @csrf
+                                <input type="hidden" name="hasil" value="sukses">
+                                <button type="submit" class="btn btn-sm !bg-emerald-600 !text-white shadow hover:!bg-emerald-700">
+                                    <x-icon name="check-circle" class="h-4 w-4" /> Konfirmasi Lunas &amp; Cetak Nota
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                 @else
@@ -694,6 +719,36 @@
                     }
                 };
 
+                const sendFinish = (result) => {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = finishUrl;
+
+                    const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+                    if (csrf) {
+                        const inp = document.createElement('input');
+                        inp.type = 'hidden';
+                        inp.name = '_token';
+                        inp.value = csrf;
+                        form.appendChild(inp);
+                    }
+
+                    if (result && typeof result === 'object') {
+                        for (const [key, val] of Object.entries(result)) {
+                            if (typeof val === 'string' || typeof val === 'number') {
+                                const inp = document.createElement('input');
+                                inp.type = 'hidden';
+                                inp.name = key;
+                                inp.value = String(val);
+                                form.appendChild(inp);
+                            }
+                        }
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                };
+
                 const openSnap = (token) => {
                     if (! window.snap) {
                         fail('Skrip Midtrans belum termuat. Periksa koneksi internet Anda.');
@@ -702,8 +757,8 @@
                     }
 
                     window.snap.pay(token, {
-                        onSuccess: () => { window.location.href = finishUrl; },
-                        onPending: () => { window.location.href = finishUrl; },
+                        onSuccess: (result) => { sendFinish(result); },
+                        onPending: (result) => { sendFinish(result); },
                         onError: () => { fail('Transaksi tidak dapat diproses. Silakan coba metode pembayaran lain.'); },
                         onClose: async () => {
                             try {

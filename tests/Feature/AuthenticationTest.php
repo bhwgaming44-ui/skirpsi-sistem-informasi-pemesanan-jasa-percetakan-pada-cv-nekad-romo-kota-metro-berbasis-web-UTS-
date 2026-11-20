@@ -77,4 +77,46 @@ class AuthenticationTest extends TestCase
         $this->assertSame('rahasia123', $user->password_terlihat);
         $this->assertTrue(Hash::check('rahasia123', $user->password));
     }
+
+    public function test_authenticated_user_can_open_login_page_to_switch_accounts(): void
+    {
+        $customer = User::query()->where('username', 'raihan')->firstOrFail();
+
+        $this->actingAs($customer)
+            ->get(route('login'))
+            ->assertOk()
+            ->assertSee('Perangkat Ini Sedang Aktif')
+            ->assertSee($customer->nama);
+    }
+
+    public function test_user_can_switch_account_instantly_via_switch_route(): void
+    {
+        $customer = User::query()->where('username', 'raihan')->firstOrFail();
+
+        $this->actingAs($customer)
+            ->post(route('switch-account'), ['role' => 'admin'])
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertSame('admin', auth()->user()->username);
+
+        $this->post(route('switch-account'), ['role' => 'pimpinan'])
+            ->assertRedirect(route('pimpinan.dashboard'));
+
+        $this->assertSame('pimpinan', auth()->user()->username);
+    }
+
+    public function test_login_as_another_user_switches_session_seamlessly(): void
+    {
+        $customer = User::query()->where('username', 'raihan')->firstOrFail();
+
+        $this->actingAs($customer);
+        $this->assertSame('raihan', auth()->user()->username);
+
+        $this->post(route('login.store'), [
+            'login' => 'admin',
+            'password' => 'admin123',
+        ])->assertRedirect(route('admin.dashboard'));
+
+        $this->assertSame('admin', auth()->user()->username);
+    }
 }

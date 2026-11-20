@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -36,8 +37,12 @@ class CatalogController extends Controller
         ]);
     }
 
-    public function filter(Request $request): JsonResponse
+    public function filter(Request $request): JsonResponse|RedirectResponse
     {
+        if (! $request->expectsJson() && ! $request->ajax()) {
+            return redirect()->route('catalog.index', $request->query());
+        }
+
         $filters = $this->filters($request);
         $products = $this->products($filters);
 
@@ -121,6 +126,8 @@ class CatalogController extends Controller
                 ->paginate(self::PER_PAGE, ['*'], 'page', 1)
                 ->withQueryString();
         }
+
+        $products->withPath(route('catalog.index', [], false));
 
         return $products;
     }

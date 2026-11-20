@@ -74,6 +74,11 @@ class OrderController extends Controller
 
     private function authorizeOrder(Order $order): void
     {
-        abort_unless($order->id_user === auth()->id(), 403, 'Pesanan ini bukan milik akun Anda.');
+        $hasKey = $order->hasValidPaymentKey(request('key'));
+        $isOwner = auth()->check() && (int) $order->id_user === (int) auth()->id();
+        $isStaff = auth()->check() && in_array(auth()->user()->role, ['admin', 'pimpinan'], true);
+        $hasSigned = request()->hasValidSignature();
+
+        abort_unless($isOwner || $isStaff || $hasKey || $hasSigned, 403, 'Pesanan ini bukan milik akun Anda.');
     }
 }

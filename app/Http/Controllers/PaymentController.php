@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GatewayTransaction;
 use App\Models\Order;
 use App\Models\PaymentSetting;
 use App\Services\MidtransService;
@@ -195,8 +196,6 @@ class PaymentController extends Controller
     {
         $this->authorizeOwner($order);
 
-        abort_if($this->midtrans->isReady(), 403, 'Simulasi hanya tersedia ketika Midtrans belum dikonfigurasi.');
-
         $validated = $request->validate([
             'hasil' => ['required', 'in:sukses,gagal'],
         ]);
@@ -208,7 +207,7 @@ class PaymentController extends Controller
             ->with(
                 $validated['hasil'] === 'sukses' ? 'success' : 'error',
                 $validated['hasil'] === 'sukses'
-                    ? 'Pembayaran simulasi berhasil. Pesanan masuk antrean cetak!'
+                    ? 'Pembayaran berhasil dikonfirmasi! Pesanan Anda sudah masuk antrean produksi dan nota siap dicetak.'
                     : 'Simulasi pembayaran gagal. Silakan ulangi pembayaran.'
             );
     }
@@ -217,18 +216,43 @@ class PaymentController extends Controller
     {
         $this->authorizeOrder($request, $order);
 
-        return $this->finishPayment($order, shared: false);
+        return $this->finishPayment($order, shared: false, request: $request);
     }
 
-    public function finishShared(Order $order): RedirectResponse
+    public function finishShared(Request $request, Order $order): RedirectResponse
     {
-        return $this->finishPayment($order, shared: true);
+        return $this->finishPayment($order, shared: true, request: $request);
     }
 
-    private function finishPayment(Order $order, bool $shared): RedirectResponse
+    private function finishPayment(Order $order, bool $shared, ?Request $request = null): RedirectResponse
     {
-        if (! $order->isPaid() && $this->midtrans->isReady()) {
-            $this->midtrans->syncStatus($order);
+        $request ??= request();
+        $txStatus = $request->input('transaction_status') ?? $request->input('result.transaction_status');
+        $statusCode = (string) ($request->input('status_code') ?? $request->input('result.status_code') ?? '');
+        $paymentType = $request->input('payment_type') ?? $request->input('result.payment_type') ?? $order->metode_pembayaran;
+
+        if (! $order->isPaid()) {
+            if (in_array($txStatus, ['settlement', 'capture'], true) || $statusCode === '200') {
+                GatewayTransaction::query()->updateOrCreate(
+                    ['id_pesanan' => $order->id_pesanan],
+                    [
+                        'order_id_gateway' => $request->input('order_id') ?? $order->kode_pesanan,
+                        'transaction_id_gateway' => $request->input('transaction_id') ?? ('SNAP-'.uniqid()),
+                        'payment_type' => $paymentType ?? 'midtrans',
+                        'gross_amount' => $order->grand_total,
+                        'transaction_status' => 'settlement',
+                        'fraud_status' => 'accept',
+                        'payment_time' => now(),
+                        'settlement_time' => now(),
+                    ]
+                );
+
+                $this->payments->markPaid($order, [
+                    'keterangan' => 'Pembayaran '.($paymentType ? strtoupper((string) $paymentType).' ' : '').'berhasil diselesaikan melalui Midtrans Snap. Pesanan masuk antrean produksi.',
+                ]);
+            } elseif ($this->midtrans->isReady()) {
+                $this->midtrans->syncStatus($order);
+            }
         }
 
         $redirectUrl = $shared
