@@ -50,6 +50,11 @@
         @apply font-display text-slate-900;
     }
 
+    /* Judul di dalam panel gelap mengikuti warna teks induknya. */
+    .text-white :where(h1, h2, h3, h4) {
+        color: inherit;
+    }
+
     ::selection {
         @apply bg-brand-200 text-brand-900;
     }

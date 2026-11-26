@@ -63,7 +63,7 @@
 
             <div class="relative mx-auto w-full max-w-lg">
                 <div class="animate-float relative overflow-hidden rounded-[2rem] border border-white/80 bg-white p-2.5 shadow-[0_40px_90px_-40px_rgba(67,56,202,0.55)]">
-                    <img src="{{ asset('images/products/workshop.jpg') }}" alt="Workshop percetakan CV Nekad Romo"
+                    <img src="{{ asset('images/products/hero.jpg') }}" alt="Workshop percetakan CV Nekad Romo"
                          class="h-[22rem] w-full rounded-[1.6rem] object-cover sm:h-[26rem]">
                     <div class="absolute inset-x-2.5 bottom-2.5 rounded-b-[1.6rem] bg-gradient-to-t from-ink-950/85 via-ink-950/20 to-transparent p-5 pt-16">
                         <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">Workshop kami</p>
